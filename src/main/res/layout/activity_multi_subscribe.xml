@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:padding="6dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="3">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="@string/test_multi_subscription"
+            android:textSize="18sp"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/movesense"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/connected_device_textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="4dp"
+        android:textSize="16sp"
+        tools:text="E5:92:291:30:21"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_weight="3">
+
+        <!--Linear Acc-->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="LinearAcc"/>
+
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/switchSubscriptionLinearAcc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:text="@string/off_on"/>
+
+
+            <TextView
+                android:id="@+id/x_axis_linearAcc_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/x"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/y_axis_linearAcc_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/y"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/z_axis_linearAcc_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/z"
+                android:textSize="16sp"/>
+
+        </LinearLayout>
+
+        <!--Magnetic Field-->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="MagneticField"/>
+
+
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/switchSubscriptionMagneticField"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:text="@string/off_on"/>
+
+            <TextView
+                android:id="@+id/x_axis_magneticField_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/x"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/y_axis_magneticField_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/y"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/z_axis_magneticField_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/z"
+                android:textSize="16sp"/>
+
+        </LinearLayout>
+
+        <!--Angular Velocity-->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="AngularVelocity"/>
+
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/switchSubscriptionAngularVelocity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:text="@string/off_on"/>
+
+            <TextView
+                android:id="@+id/x_axis_angularVelocity_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/x"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/y_axis_angularVelocity_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/y"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/z_axis_angularVelocity_textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/z"
+                android:textSize="16sp"/>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+    <!--<TextView-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_marginTop="10dp"-->
+    <!--android:text="@string/rate"/>-->
+
+    <!--<Spinner-->
+    <!--android:id="@+id/spinner"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"/>-->
+    <!---->
+
+</LinearLayout>

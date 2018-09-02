@@ -1,0 +1,1195 @@
+#pragma once
+// Copyright (c) Suunto Oy 2014. All rights reserved.
+
+#include "whiteboard/integration/shared/types.h"
+#include "whiteboard/integration/shared/infinite.h"
+#include "whiteboard/integration/shared/templateMetaprogramming.h"
+#include "quantity/quantity/quantity.h"
+
+namespace whiteboard
+{
+
+// Forward declarations
+class Value;
+class ParameterList;
+struct ClientId;
+struct ResourceId;
+
+/** Type that can be used to identify resources of single whiteboard. */
+typedef uint16 LocalResourceId;
+
+/** Type that is used to identify local clients and providers of single whiteboard. */
+typedef uint16 LocalEntityId;
+
+/** Type that is used to identify subscriptions of single whiteboard. */
+typedef uint16 LocalSubscriptionId;
+
+/** Type that is used to identify data types of single whiteboard. */
+typedef uint16 LocalDataTypeId;
+
+/** ID of invalid request */
+static const LocalDataTypeId ID_INVALID_LOCAL_DATA_TYPE = 0xffff;
+
+/** Type that is used to identify execution context. Unique for
+local application / whiteboard. */
+typedef uint8 ExecutionContextId;
+
+/** Maximum number of execution contexts. Note packed structures below. */
+#define WB_MAX_EXECUTION_CONTEXTS 15
+
+/** Execution context ID that is used to indicate invalid execution context.
+* Used also to mark remote execution contexts */
+static const ExecutionContextId ID_INVALID_EXECUTION_CONTEXT = WB_MAX_EXECUTION_CONTEXTS;
+
+/** Type that is used to identify security tags. */
+typedef uint8 SecurityTagId;
+
+/** Index of a parameter in a parameter list */
+typedef uint8 ParameterIndex;
+
+/** ID of invalid request */
+static const ParameterIndex INVALID_PARAMETER_INDEX = 0xff;
+
+/* Value types. Be careful when making changes to this enumeration
+* because most changes will break compatibility as this needs to
+* match fixed data type IDs. */
+enum ValueType
+{
+    WB_TYPE_NONE = 0,
+
+    // Scalar types
+    WB_TYPE_BOOL,
+    WB_TYPE_INT8,
+    WB_TYPE_UINT8,
+    WB_TYPE_INT16,
+    WB_TYPE_UINT16,
+    WB_TYPE_INT32,
+    WB_TYPE_UINT32,
+    WB_TYPE_INT64,
+    WB_TYPE_UINT64,
+    WB_TYPE_FLOAT,
+    WB_TYPE_DOUBLE,
+    WB_TYPE_STRING,
+
+    WB_TYPE_BYTE_STREAM,
+    WB_TYPE_HASH_STRING,
+
+    WB_TYPE_STRUCTURE,
+
+    // Some book keeping
+    WB_TYPE_NUMBER_OF_TYPES,
+    WB_TYPE_LAST_SCALAR = WB_TYPE_STRING
+};
+
+/** Array of scalar type sizes */
+#ifdef WB_HAVE_HASH_STRING
+extern const uint8 SCALAR_VALUE_DATA_SIZE[WB_TYPE_HASH_STRING + 1];
+#else
+extern const uint8 SCALAR_VALUE_DATA_SIZE[WB_TYPE_DOUBLE - WB_TYPE_NONE + 1];
+#endif
+
+/** Type of a request */
+enum RequestType
+{
+    REQUEST_GET = 0,
+    REQUEST_PUT,
+    REQUEST_POST,
+    REQUEST_DELETE,
+    REQUEST_SUBSCRIBE,
+    REQUEST_UNSUBSCRIBE,
+
+    REQUEST_GET_RESOURCE,
+    REQUEST_RELEASE_RESOURCE,
+
+    NUMBER_OF_REQUEST_TYPES,
+    REQUEST_NOTYPE
+};
+
+namespace metadata
+{
+
+/** Reference to a security tag. */
+typedef uint8 SecurityTagId;
+
+/** Invalid security tag reference */
+static const SecurityTagId INVALID_SECURITY_TAG = 0xff;
+
+/** Reference to a operation list. */
+typedef uint16 OperationListId;
+
+/** Invalid operation list reference */
+static const OperationListId INVALID_OPERATION_LIST = 0xffff;
+
+/** Reference to a operation */
+typedef uint16 OperationId;
+
+/** Invalid operation reference */
+static const OperationId INVALID_OPERATION = 0xffff;
+
+/** Reference to a parameter list */
+typedef uint16 ParameterListId;
+
+/** Invalid parameter list reference */
+static const ParameterListId INVALID_PARAMETER_LIST = 0xffff;
+
+/** Reference to a parameter */
+typedef uint16 ParameterId;
+
+/** Invalid parameter reference */
+static const ParameterId INVALID_PARAMETER = 0xffff;
+
+/** Reference to a response list */
+typedef uint16 ResponseListId;
+
+/** Invalid response list reference */
+static const ResponseListId INVALID_RESPONSE_LIST = 0xffff;
+
+/** Reference to a response */
+typedef uint16 ResponseId;
+
+/** Invalid response reference */
+static const ResponseId INVALID_RESPONSE = 0xffff;
+
+/** Reference to a data type */
+typedef uint16 DataTypeId;
+
+/** Invalid data type reference */
+static const DataTypeId INVALID_DATATYPE = 0xffff;
+
+/** Reference to a property list type */
+typedef uint16 PropertyListId;
+
+/** Invalid proeprty list reference */
+static const PropertyListId INVALID_PROPERTY_LIST = 0xffff;
+
+/** Reference to a property type */
+typedef uint16 PropertyId;
+
+/** Invalid property reference */
+static const PropertyId INVALID_PROPERTY = 0xffff;
+
+/** Reference to a enumeration item list type */
+typedef uint16 EnumerationItemListId;
+
+/** Invalid proeprty list reference */
+static const EnumerationItemListId INVALID_ENUMERATION_ITEM_LIST = 0xffff;
+
+/** Reference to a string */
+typedef uint16 StringId;
+
+/** Invalid string reference */
+static const StringId INVALID_STRING = 0xffff;
+
+/** ID of the API that distincts resources and data types
+ * that are generated by different WBRES builds.
+ */
+typedef uint8 ApiId;
+
+/** Maximum number of APIs */
+static const size_t MAX_NUMBER_APIS = 256;
+
+/** Number of bits to shift IDs to get API ID */
+static const size_t API_ID_SHIFT = 8;
+
+/** Maximum number of resources per API */
+static const size_t MAX_NUMBER_OF_RESOURCES_PER_API = 1 << API_ID_SHIFT;
+
+/** Maximum number of data types per API */
+static const size_t MAX_NUMBER_OF_DATATYPES_PER_API = 1 << API_ID_SHIFT;
+
+/** Maximum number of fixed ID data types */
+static const size_t MAX_FIXED_ID_DATATYPES = 256;
+
+/** Reference to a mount point */
+typedef uint8 MountPointId;
+
+/** Invalid mount point reference */
+static const MountPointId INVALID_MOUNT_POINT = 0xff;
+
+/** Bit mask of security tags */
+typedef uint32 SecurityMask;
+
+/** Structure that stores security tag related meta data */
+struct SecurityTag
+{
+    /** Name of the security tag */
+    StringId nameId;
+};
+
+/** Structure that stores execution context information */
+struct ExecutionContext
+{
+    /** Name of the execution context */
+    StringId nameId;
+
+    /** Maximum number of DPCs allocated in execution context */
+    uint8 numberOfDpcs;
+
+    /** Maximum number of request events allocated in execution context */
+    uint8 numberOfRequests;
+    
+    /** Maximum number of response events allocated in execution context */
+    uint8 numberOfResponses;
+
+    /** A value indicating whether this execution context should be run
+    * by a external thread */
+    uint8 externalThread : 1;
+
+    /** Execution context priority
+    *
+    * @see WbThreadPriority enumeration
+    */
+    uint8 priority : 3;
+
+    /** Reserved */
+    uint8 reserved : 4;
+
+    /** Size of the execution context thread stack */
+    uint16 stackSize;
+
+    /** Security rights of the execution context */
+    SecurityMask securityMask;
+
+    /** Checks whether this is only a forward declaration */
+    inline bool isForwardDeclaration() const
+    {
+        return !externalThread && (stackSize == 0);
+    }
+};
+
+#define ALL_ACCESS UINT32_MAX
+#define INIT_EXEC_CTX_METADATA(nameId, numberOfDpcs, numberOfRequests, numberOfResponses, externalThread, priority, stackSize, securityMask) \
+    { nameId, numberOfDpcs, numberOfRequests, numberOfResponses, externalThread ? 1 : 0, priority, 0, stackSize, securityMask }
+
+/** Structure that stores scalar data type related meta data */
+struct ScalarType
+{
+    /** Type of the scalar data type
+    *
+    * @see ValueType enumeration
+    */
+    uint8 type;
+
+    /** Reserved for future use. Needed for alignment */
+    uint8 reserved;
+
+    /** Unit info (quantity and unit ID) of the scalar data type
+    *
+    * @see unit::Info struct
+    */
+    unit::Info unitInfo;
+};
+
+/** Structure that stores named data type related meta data */
+struct NamedType
+{
+    /** ID of type name */
+    StringId nameId;
+
+    /** Actual type of the named data type */
+    DataTypeId typeId;
+};
+
+/** Structure that stores array data type related meta data */
+struct ArrayType
+{
+    /** Item type */
+    DataTypeId itemTypeId;
+
+    /** Reserved for future use */
+    uint16 reserved : 2;
+
+    /** A value indicating whether array has a fixed size */
+    uint16 fixedSize : 1;
+
+    /** Alignment of the array item (range 1 - 8) */
+    uint16 alignment : 3;
+
+    /** Size of the item (excluding variant size chunks) */
+    uint16 itemSize : 10;
+};
+
+/** Structure that stores structure data type related meta data */
+struct StructureType
+{
+    /** ID of the structure's property list */
+    PropertyListId propertyListId;
+
+    /** Reserved for future use */
+    uint16 reserved : 2;
+
+    /** A value indicating whether structure has a fixed size */
+    uint16 fixedSize : 1;
+
+    /** Alignment of the structure (range 1 - 8) */
+    uint16 alignment : 3;
+
+    /** Size of the structure (excluding variant size chunks) */
+    uint16 structureSize : 10;
+};
+
+/** Structure that stores structure data type related meta data */
+struct Property
+{
+    /** Name of the property */
+    StringId nameId;
+
+    /** Property type */
+    DataTypeId typeId;
+
+    /** A value indicating whether the property is required */
+    uint16 required : 1;
+
+    /** A value indicating whether the property is stored inline in the structure
+    or whether it is stored as reference to actual data */
+    uint16 inlineStorage : 1;
+
+    /** A value indicating whether property has a fixed size */
+    uint16 fixedSize : 1;
+
+    /** Alignment of the property data type (range 1 - 8) */
+    uint16 alignment : 3;
+
+    /** Size of the property data type (excluding variant size chunks) */
+    uint16 propertySize : 10;
+};
+
+/** Structure that stores property list meta data */
+struct PropertyList
+{
+    /** Property ID array. Terminated by INVALID_PROPERTY */
+    PropertyId propertyIds[1];
+
+    /** Counts number of property IDs in the list
+    *
+    * @return Size of the list
+    */
+    inline size_t count() const
+    {
+        size_t i = 0;
+        while (propertyIds[i] != INVALID_PROPERTY)
+        {
+            ++i;
+        }
+        return i;
+    }
+
+    /** Converts given null terminated property array to property list
+    *
+    * @param pNullTerminatedPropertyArray Null terminated array of properties
+    * @return Parameter list reference
+    */
+    static const PropertyList& toList(const PropertyId* pNullTerminatedPropertyArray)
+    {
+        return *reinterpret_cast<const PropertyList*>(pNullTerminatedPropertyArray);
+    }
+};
+
+/** Value type of enumeration */
+typedef int32 EnumerationValue;
+
+/** Structure that stores enumeration item related meta data for sequential enumerations */
+struct SequentialEnumerationItem
+{
+    /** Name of the enumeration item */
+    StringId nameId;
+};
+
+/** Structure that stores enumeration item related meta data */
+struct EnumerationItem
+{
+    /** Name of the enumeration item */
+    StringId nameId;
+
+    /** Value of the enumeration item */
+    EnumerationValue value;
+};
+
+/** Class that stores enumeration item list */
+class EnumerationItemList FINAL
+{
+public:
+    /** Default constructor. Creates invalid EnumerationItemList instance
+    */
+    EnumerationItemList()
+        : mSequential(false), mpItems(NULL)
+    {
+    }
+
+    /** Constructor
+     *
+     * @param sequential A value indicating whether enumeration items are sequential
+     * @param pItems Pointer to enumeration items
+     */
+    EnumerationItemList(bool sequential, const void* pItems)
+        : mSequential(sequential), mpItems(pItems)
+    {
+    }
+
+    /** Checks whether the list is valid */
+    inline bool isValid() const 
+    { 
+        return mpItems != NULL;
+    }
+
+    /** Gets enumeration item with specified index 
+     *
+     * @param index Index of the enumeration item to retrieve
+     * @return Enumeration item
+     */
+    EnumerationItem operator[](size_t index) const
+    {
+        if (mSequential)
+        {
+            const SequentialEnumerationItem* pEnumItems = static_cast<const SequentialEnumerationItem*>(mpItems);
+            EnumerationItem result = { pEnumItems[index].nameId, static_cast<EnumerationValue>(index) };
+            return result;
+        }
+        else
+        {
+            const EnumerationItem* pEnumItems = static_cast<const EnumerationItem*>(mpItems);
+            return pEnumItems[index];
+        }
+    }
+
+    /** Counts number of enumeration items in the list
+    *
+    * @return Size of the list
+    */
+    size_t count() const
+    {
+        WB_STATIC_VERIFY(WB_OFFSETOF(SequentialEnumerationItem, nameId) == 0, OffsetOfNameIdNotExpected);
+        WB_STATIC_VERIFY(WB_OFFSETOF(EnumerationItem, nameId) == 0, OffsetOfNameIdNotExpected2);
+
+        const size_t ptrStep = mSequential ? sizeof(SequentialEnumerationItem) : sizeof(EnumerationItem);
+        const StringId* pEnumName = static_cast<const StringId*>(mpItems);
+        size_t i = 0;
+        while (*pEnumName != INVALID_STRING)
+        {
+            ++i;
+            pEnumName = reinterpret_cast<const StringId*>(reinterpret_cast<const uint8*>(pEnumName) + ptrStep);
+        }
+
+        return i;
+    }
+
+    /** Converts given null terminated enumeration item array to enumeration item list
+    *
+    * @param pNullTerminatedEnumerationItemArray Null terminated array of enumeration items
+    * @return EnumerationItemList instance
+    */
+    static EnumerationItemList
+        toList(const SequentialEnumerationItem* pNullTerminatedEnumerationItemArray)
+    {
+        return EnumerationItemList(true, pNullTerminatedEnumerationItemArray);
+    }
+
+    /** Converts given null terminated enumeration item array to enumeration item list
+    *
+    * @param pNullTerminatedEnumerationItemArray Null terminated array of enumeration items
+    * @return EnumerationItemList instance
+    */
+    static EnumerationItemList
+        toList(const EnumerationItem* pNullTerminatedEnumerationItemArray)
+    {
+        return EnumerationItemList(false, pNullTerminatedEnumerationItemArray);
+    }
+
+private:
+    /** A value indicating whether enumeration items are sequential */
+    bool mSequential;
+    
+    /** Pointer to enumeration items */
+    const void* mpItems;
+};
+
+/** Structure that stores enumeration data type related meta data */
+struct EnumerationType
+{
+    /** Base type */
+    DataTypeId baseTypeId;
+
+    /** ID of the structure's enumeration item list */
+    EnumerationItemListId enumerationItemListId;
+};
+
+/** Type of a data type */
+typedef enum
+{
+    DATATYPE_SCALAR,
+    DATATYPE_NAMED,
+    DATATYPE_ARRAY,
+    DATATYPE_STRUCTURE,
+    DATATYPE_ENUMERATION
+} DataTypeType;
+
+/** Helper structure for calculating required data type meta data size */
+struct DataTypeContainer
+{
+    /** Union of type data */
+    union
+    {
+        /** Scalar type information */
+        ScalarType scalar;
+
+        /** Named type information */
+        NamedType named;
+
+        /** Array type information */
+        ArrayType array;
+
+        /** Structure type information */
+        StructureType structure;
+
+        /** Enumeration type information */
+        EnumerationType enumeration;
+    };
+};
+
+// Check alignments
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(ScalarType) <= 2, AlignmentOfScalarTypeIsNotWhatExpected);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(NamedType) <= 2, AlignmentOfNamedTypeIsNotWhatExpected);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(ArrayType) <= 2, AlignmentOfArrayTypeIsNotWhatExpected);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(StructureType) <= 2, AlignmentOfStructureTypeIsNotWhatExpected);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(EnumerationType) <= 2, AlignmentOfEnumerationTypeIsNotWhatExpected);
+
+/** Structure that stores type meta data */
+struct DataType
+{
+    /** Type of the data type.
+    *
+    * @see DataTypeType enumeration
+    */
+    uint8 type;
+
+    /** Data storage for different data types. uint16 ensures correct alignment
+    * for the sub data types.
+    */
+    uint16 data[(sizeof(DataTypeContainer) + sizeof(uint16) - 1) / sizeof(uint16)];
+
+    /** Gets scalar data type
+    *
+    * @return Reference to scalar data type
+    */
+    inline ScalarType& getScalarDataType()
+    {
+        return *reinterpret_cast<ScalarType*>(data);
+    }
+
+    /** Gets scalar data type
+    *
+    * @return Reference to scalar data type
+    */
+    inline const ScalarType& getScalarDataType() const
+    {
+        return *reinterpret_cast<const ScalarType*>(data);
+    }
+
+    /** Gets named data type
+    *
+    * @return Reference to named data type
+    */
+    inline NamedType& getNamedDataType()
+    {
+        return *reinterpret_cast<NamedType*>(data);
+    }
+
+    /** Gets named data type
+    *
+    * @return Reference to named data type
+    */
+    inline const NamedType& getNamedDataType() const
+    {
+        return *reinterpret_cast<const NamedType*>(data);
+    }
+
+    /** Gets array data type
+    *
+    * @return Reference to array data type
+    */
+    inline ArrayType& getArrayDataType()
+    {
+        return *reinterpret_cast<ArrayType*>(data);
+    }
+
+    /** Gets array data type
+    *
+    * @return Reference to array data type
+    */
+    inline const ArrayType& getArrayDataType() const
+    {
+        return *reinterpret_cast<const ArrayType*>(data);
+    }
+
+    /** Gets structure data type
+    *
+    * @return Reference to structure data type
+    */
+    inline StructureType& getStructureDataType()
+    {
+        return *reinterpret_cast<StructureType*>(data);
+    }
+
+    /** Gets structure data type
+    *
+    * @return Reference to structure data type
+    */
+    inline const StructureType& getStructureDataType() const
+    {
+        return *reinterpret_cast<const StructureType*>(data);
+    }
+
+    /** Gets enumeration data type
+    *
+    * @return Reference to enumeration data type
+    */
+    inline EnumerationType& getEnumerationDataType()
+    {
+        return *reinterpret_cast<EnumerationType*>(data);
+    }
+
+    /** Gets enumeration data type
+    *
+    * @return Reference to enumeration data type
+    */
+    inline const EnumerationType& getEnumerationDataType() const
+    {
+        return *reinterpret_cast<const EnumerationType*>(data);
+    }
+};
+
+/** Structure that stores parameter meta data */
+struct Parameter
+{
+    /** ID of the parameter name */
+    StringId nameId;
+
+    /** A value indicating whether the parameter is required */
+    bool required;
+
+    /** ID of the parameter type */
+    DataTypeId dataTypeId;
+};
+
+/** Structure that stores parameter list meta data */
+struct ParameterList
+{
+    /** Parameter ID array. Terminated by INVALID_PARAMETER */
+    ParameterId parameterIds[1];
+
+    /** Counts number of parameter IDs in the list
+    *
+    * @return Size of the list
+    */
+    inline size_t count() const
+    {
+        size_t i = 0;
+        while (parameterIds[i] != INVALID_PARAMETER)
+        {
+            ++i;
+        }
+        return i;
+    }
+
+    /** Converts given null terminated parameter array to parameter list
+    *
+    * @param pNullTerminatedParameterArray Null terminated array of parameters
+    * @return Parameter list reference
+    */
+    static const ParameterList& toList(const ParameterId* pNullTerminatedParameterArray)
+    {
+        return *reinterpret_cast<const ParameterList*>(pNullTerminatedParameterArray);
+    }
+};
+
+/** Structure that stores response meta data */
+struct Response
+{
+    /** Result code
+    *
+    * @see Result enumeration
+    */
+    uint16 code;
+
+    /** ID of result type */
+    DataTypeId dataTypeId;
+};
+
+/** Structure that stores response list meta data */
+struct ResponseList
+{
+    /** Response ID array. Terminated by INVALID_RESPONSE */
+    ResponseId responseIds[1];
+
+    /** Counts number of response IDs in the list
+    *
+    * @return Size of the list
+    */
+    inline size_t count() const
+    {
+        size_t i = 0;
+        while (responseIds[i] != INVALID_RESPONSE)
+        {
+            ++i;
+        }
+        return i;
+    }
+
+    /** Converts given null terminated response array to response list
+    *
+    * @param pNullTerminatedResponseArray Null terminated array of responses
+    * @return Response list reference
+    */
+    static const ResponseList& toList(const ResponseId* pNullTerminatedResponseArray)
+    {
+        return *reinterpret_cast<const ResponseList*>(pNullTerminatedResponseArray);
+    }
+};
+
+/** Structure that stores operation meta data */
+struct Operation
+{
+    /** Type of the operation
+    *
+    * @see OperationType enumeration
+    */
+    uint8 operationType;
+
+    /** Parameter list ID */
+    ParameterListId parameterListId;
+
+    /** Response list ID */
+    ResponseListId responseListId;
+
+    /** Required security mask */
+    SecurityMask securityMask;
+};
+
+/** Structure that stores list of operations */
+struct OperationList
+{
+    /** Operation IDs (GET, PUT, POST, DELETE, SUBSCRIBE, UNSUBSCRIBE) */
+    OperationId operationIds[6];
+
+    /** Gets operation id for specific request type
+     *
+     * @param type Request type
+     * @return Operation ID of the request type
+     */
+    inline OperationId getOperationIdByType(RequestType type) const
+    {
+        return operationIds[type];
+    }
+
+    /** Converts given null terminated operation array to operation list
+    *
+    * @param pNullTerminatedOperationArray Null terminated array of operations
+    * @return Operation list reference
+    */
+    static const OperationList& toList(const OperationId* pNullTerminatedOperationArray)
+    {
+        return *reinterpret_cast<const OperationList*>(pNullTerminatedOperationArray);
+    }
+};
+
+/** Structure that stores path meta data */
+struct Path
+{
+    /** Name of the resource */
+    StringId nameId;
+
+    /** A value indicating whether this is some other type than path (0 = path, 1 = other type) */
+    uint8 isOtherType : 1;
+
+    /** Execution context id */
+    ExecutionContextId executionContextId : 4;
+
+    /** Number of path parameters */
+    uint8 pathParameterCount : 3;
+
+    /** Reserved for alignment */
+    uint8 reserved;
+
+    /** ID of the parent resource */
+    LocalResourceId parentId;
+
+    /** ID of next sibling in the resource tree */
+    LocalResourceId nextSiblingId;
+
+    /** ID of first child in the resource tree */
+    LocalResourceId firstChildId;
+
+    /** Operation */
+    OperationListId operations;
+
+    /** Path parameter */
+    ParameterId pathParameter;
+};
+
+enum ResourceTreeNodeType
+{
+    NODE_TYPE_PATH = 0,         // isOtherType = 0, otherType = N/A
+    NODE_TYPE_MOUNTPOINT = 2,   // isOtherType = 1, otherType = 0
+    NODE_TYPE_CONSTSYMLINK = 3, // isOtherType = 1, otherType = 1
+};
+
+/** Structure that stores mount point information */
+struct MountPoint
+{
+    /** Name of the resource */
+    StringId nameId;
+
+    /** A value indicating whether this is some other type than path (0 = path, 1 = other type) */
+    uint8 isOtherType : 1;
+
+    /** A value indicating the other type, see enum OtherNodeType (0 = mount point, 1 = symlink) */
+    uint8 otherType : 1;
+
+    /** Reserved for future use */
+    uint8 reserved : 6;
+
+    /** Reserved for alignment */
+    uint8 reserved2;
+
+    /** ID of the parent resource */
+    LocalResourceId parentId;
+
+    /** ID of next sibling in the resource tree */
+    LocalResourceId nextSiblingId;
+
+    /** ID of the mount point */
+    MountPointId mountPointId;
+};
+
+/** Structure that stores symbolic link information */
+struct ConstSymbolicLink
+{
+    /** Name of the resource */
+    StringId nameId;
+
+    /** A value indicating whether this is some other type than path (0 = path, 1 = other type) */
+    uint8 isOtherType : 1;
+
+    /** A value indicating the other type, see enum OtherType (0 = mount point, 1 = symlink) */
+    uint8 otherType : 1;
+
+    /** Reserved for future use */
+    uint8 reserved : 6;
+
+    /** Reserved for alignment */
+    uint8 reserved2;
+
+    /** ID of the parent resource */
+    LocalResourceId parentId;
+
+    /** ID of next sibling in the resource tree */
+    LocalResourceId nextSiblingId;
+
+    /** ID of the linked resource */
+    LocalResourceId linkedResourceId;
+};
+
+/** Helper structure for calculating required resource tree node data size */
+struct ResourceTreeNodeContainer
+{
+    /** Union of type data */
+    union
+    {
+        /** Path information */
+        Path path;
+
+        /** Mount point information */
+        MountPoint mountPoint;
+
+        /** Const symbolic link information */
+        ConstSymbolicLink constSymLink;
+    };
+};
+
+// Check alignments
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(Path) <= sizeof(uint16), AlignmentOfPathIsNotWhatExpected);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(MountPoint) <= sizeof(uint16), AlignmentOfMountPointIsNotWhatExpected);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(ConstSymbolicLink) <= sizeof(uint16), AlignmentOfConstSymbolicLinkIsNotWhatExpected);
+
+/** Structure that stores resource tree node  data */
+struct ResourceTreeNode
+{
+    /** Data storage for different tree node types. uint16 ensures correct alignment.
+    */
+    uint16 data[(sizeof(ResourceTreeNodeContainer) + sizeof(uint16) - 1) / sizeof(uint16)];
+
+    /** Checks whether this node is a dummy place holder
+    *
+    * @return true if dummy, false if one of the other node types
+    */
+    inline bool isDummy() const
+    {
+        return isStandardPath() && reinterpret_cast<const Path*>(data)->nameId == INVALID_STRING;
+    }
+
+    /** Checks whether this node describes a standard path node
+    *
+    * @return true if standard path, false if one of the other node types
+    */
+    inline bool isStandardPath() const
+    {
+        // the node is either a standard path or some other type
+        return reinterpret_cast<const Path*>(data)->isOtherType == 0;
+    }
+
+    /** Return the type of the node
+    * @return ResourceTreeNodeType value of the node
+    */
+    inline ResourceTreeNodeType getNodeType() const
+    {
+        if (!reinterpret_cast<const Path*>(data)->isOtherType)
+        {
+            return NODE_TYPE_PATH;
+        }
+        const MountPoint* pMountPoint = reinterpret_cast<const MountPoint*>(data);
+        return static_cast<ResourceTreeNodeType>(NODE_TYPE_MOUNTPOINT + pMountPoint->otherType);
+    }
+
+    /** Sets type of this node. Type must be set before type specific getters can be accessed
+    *
+    * @param nodeType The enumarated node type.
+    */
+    inline void setType(ResourceTreeNodeType nodeType)
+    {
+        if (NODE_TYPE_PATH == nodeType)
+        {
+            reinterpret_cast<Path*>(data)->isOtherType = 0;
+        }
+        else
+        {
+            MountPoint* pMountPoint = reinterpret_cast<MountPoint*>(data);
+            pMountPoint->isOtherType = 1;
+            pMountPoint->otherType = nodeType - 2;
+        }
+    }
+
+    /** Checks whether this node describes a mount point
+    *
+    * @return true if the node is mount point.
+    */
+    inline bool isMountPoint() const
+    {
+        return NODE_TYPE_MOUNTPOINT == getNodeType();
+    }
+
+    /** Checks whether this node describes a constant symbolic link
+    *
+    * @return true if the node is a constant symbolic link.
+    */
+    inline bool isConstSymLink() const
+    {
+        return NODE_TYPE_CONSTSYMLINK == getNodeType();
+    }
+
+    /** Gets path node type
+    *
+    * @return Reference to path node
+    */
+    inline Path& getPath()
+    {
+        return *reinterpret_cast<Path*>(data);
+    }
+
+    /** Gets path node type
+    *
+    * @return Reference to path node
+    */
+    inline const Path& getPath() const
+    {
+        return *reinterpret_cast<const Path*>(data);
+    }
+
+    /** Gets mount point node type
+    *
+    * @return Reference to mount point node
+    */
+    inline MountPoint& getMountPoint()
+    {
+        return *reinterpret_cast<MountPoint*>(data);
+    }
+
+    /** Gets mount point node type
+    *
+    * @return Reference to mount point node
+    */
+    inline const MountPoint& getMountPoint() const
+    {
+        return *reinterpret_cast<const MountPoint*>(data);
+    }
+
+    /** Gets const symbolic link node type
+    *
+    * @return Reference to a const symbolic link node
+    */
+    inline ConstSymbolicLink& getConstSymLink()
+    {
+        return *reinterpret_cast<ConstSymbolicLink*>(data);
+    }
+
+    /** Gets const symbolic link node type
+    *
+    * @return Reference to a const symbolic link node
+    */
+    inline const ConstSymbolicLink& getConstSymLink() const
+    {
+        return *reinterpret_cast<const ConstSymbolicLink*>(data);
+    }
+};
+
+/** Offset from start of the metadata blob */
+typedef uint32 MetadataBlobOffset;
+
+/** Typedef for a number of items in a metadata list */
+typedef uint16 MetadataBlobItemCount;
+
+/** Magic constant used to identify resource tree blob */
+static const uint32 RESOURCE_TREE_MAGIC = WB_BE_TAG('W', 'B', 'R', '0');
+
+/** Maximum alignment of any metadata structure */
+#define WB_METADATA_MAX_ALIGNMENT 4
+
+/** Structure that stores metadata blob related information */
+struct MetadataBlobHeader
+{ 
+    /** Magic constant used to identify resource tree blob */
+    uint32 magic;
+
+    /** Size of the resource tree blob (including this struct) */
+    uint32 size;
+
+    /** Hash of the metadata */
+    uint32 hash;
+
+    /** String map */
+    MetadataBlobOffset offsetToStringMap;
+
+    /** List of execution contexts */
+    MetadataBlobOffset offsetToExecutionContexts;
+
+    /** List of properties */
+    MetadataBlobOffset offsetToProperties;
+
+    /** List of property lists */
+    MetadataBlobOffset offsetToPropertyLists;
+
+    /** List of sequential enumeration items */
+    MetadataBlobOffset offsetToSequentialEnumerationItems;
+
+    /** List of non-sequential enumeration items */
+    MetadataBlobOffset offsetToNonSequentialEnumerationItems;
+
+    /** List of data types */
+    MetadataBlobOffset offsetToDataTypes;
+
+    /** List of data type sparse map entries */
+    MetadataBlobOffset offsetToDataTypeSparseMap;
+
+    /** List of parameters */
+    MetadataBlobOffset offsetToParameters;
+
+    /** List of parameter lists */
+    MetadataBlobOffset offsetToParameterLists;
+
+    /** List of responses */
+    MetadataBlobOffset offsetToResponses;
+
+    /** List of response lists */
+    MetadataBlobOffset offsetToResponseLists;
+
+    /** List of operations */
+    MetadataBlobOffset offsetToOperations;
+
+    /** List of operation lists */
+    MetadataBlobOffset offsetToOperationLists;
+
+    /** List of security tags */
+    MetadataBlobOffset offsetToSecurityTags;
+
+    /** List of resource tree nodes */
+    MetadataBlobOffset offsetToResourceTreeNodes;
+
+    /** List of mount points */
+    MetadataBlobOffset offsetToMountPoints;
+
+    /** Resource tree sparse map */
+    MetadataBlobOffset offsetToResourceTreeSparseMap;
+
+    /** Number of characters in string map */
+    MetadataBlobItemCount stringMapLength;
+
+    /** Number of execution contexts */
+    MetadataBlobItemCount numberOfExecutionContexts;
+
+    /** Number of properties */
+    MetadataBlobItemCount numberOfProperties;
+
+    /** Number of entries in property list map */
+    MetadataBlobItemCount numberOfPropertyListMapEntries;
+
+    /** Number of sequential enumeration items */
+    MetadataBlobItemCount numberOfSequentialEnumerationItems;
+
+    /** Number of enumeration items */
+    MetadataBlobItemCount numberOfNonSequentialEnumerationItems;
+
+    /** Number of data types */
+    MetadataBlobItemCount numberOfDataTypes;
+
+    /** Number of entries in sparce data type map */
+    MetadataBlobItemCount numberOfDataTypeSparseMapEntries;
+
+    /** Number of parameters */
+    MetadataBlobItemCount numberOfParameters;
+
+    /** Number of entries in parameter list map */
+    MetadataBlobItemCount numberOfParameterListMapEntries;
+
+    /** Number of responses */
+    MetadataBlobItemCount numberOfResponses;
+
+    /** Number of entries in response list map */
+    MetadataBlobItemCount numberOfResponseListMapEntries;
+
+    /** Number of operations */
+    MetadataBlobItemCount numberOfOperations;
+
+    /** Number of operation lists */
+    MetadataBlobItemCount numberOfOperationLists;
+
+    /** Number of security tags */
+    MetadataBlobItemCount numberOfSecurityTags;
+
+    /** Number of nodes in the resource tree */
+    MetadataBlobItemCount numberOfResourceTreeNodes;
+
+    /** Number of resource tree sparse map entries */
+    MetadataBlobItemCount numberOfResourceTreeSparseMapEntries;
+    
+    /** Number of mount points */
+    MetadataBlobItemCount numberOfMountPoints;
+};
+
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(SecurityTag) <= WB_METADATA_MAX_ALIGNMENT, UnexpectedDataTypeAlignment1);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(ExecutionContext) <= WB_METADATA_MAX_ALIGNMENT, UnexpectedDataTypeAlignment2);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(Property) <= WB_METADATA_MAX_ALIGNMENT, UnexpectedDataTypeAlignment3);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(PropertyId) <= WB_METADATA_MAX_ALIGNMENT, UnexpectedDataTypeAlignment4);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(SequentialEnumerationItem) <= WB_METADATA_MAX_ALIGNMENT, UnexpectedDataTypeAlignment5);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(EnumerationItem) <= WB_METADATA_MAX_ALIGNMENT, UnexpectedDataTypeAlignment6);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(DataType) <= WB_METADATA_MAX_ALIGNMENT, UnexpectedDataTypeAlignment7);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(DataTypeId) <= WB_METADATA_MAX_ALIGNMENT, UnexpectedDataTypeAlignment8);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(Parameter) <= WB_METADATA_MAX_ALIGNMENT, UnexpectedDataTypeAlignment9);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(ParameterId) <= WB_METADATA_MAX_ALIGNMENT, UnexpectedDataTypeAlignment10);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(Response) <= WB_METADATA_MAX_ALIGNMENT, UnexpectedDataTypeAlignment11);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(ResponseId) <= WB_METADATA_MAX_ALIGNMENT, UnexpectedDataTypeAlignment12);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(Operation) <= WB_METADATA_MAX_ALIGNMENT, UnexpectedDataTypeAlignment13);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(OperationId) <= WB_METADATA_MAX_ALIGNMENT, UnexpectedDataTypeAlignment14);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(ResourceTreeNode) <= WB_METADATA_MAX_ALIGNMENT, UnexpectedDataTypeAlignment15);
+WB_STATIC_VERIFY(WB_TYPE_ALIGNMENT(LocalResourceId) <= WB_METADATA_MAX_ALIGNMENT, UnexpectedDataTypeAlignment16);
+
+} // namespace metadata
+} // namespace whiteboard

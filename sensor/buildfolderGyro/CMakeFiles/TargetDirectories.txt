@@ -1,0 +1,7 @@
+C:/Users/Eemil/Documents/Ohjelmointi/ANDROIDSENSE/sensor/buildfolderGyro/CMakeFiles/Movesense.dir
+C:/Users/Eemil/Documents/Ohjelmointi/ANDROIDSENSE/sensor/buildfolderGyro/CMakeFiles/flash.dir
+C:/Users/Eemil/Documents/Ohjelmointi/ANDROIDSENSE/sensor/buildfolderGyro/CMakeFiles/flash_all.dir
+C:/Users/Eemil/Documents/Ohjelmointi/ANDROIDSENSE/sensor/buildfolderGyro/CMakeFiles/dfupkg.dir
+C:/Users/Eemil/Documents/Ohjelmointi/ANDROIDSENSE/sensor/buildfolderGyro/CMakeFiles/backup_manufacturing_data.dir
+C:/Users/Eemil/Documents/Ohjelmointi/ANDROIDSENSE/sensor/buildfolderGyro/CMakeFiles/edit_cache.dir
+C:/Users/Eemil/Documents/Ohjelmointi/ANDROIDSENSE/sensor/buildfolderGyro/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,111 @@
+# Copyright Suunto Oy 2016
+# All rights reserved.
+#
+swagger: '2.0'
+
+# Document metadata
+info:
+  version: "0.9.0"
+  title: /Whiteboard/Metrics API
+  description: |
+    This file defines Suunto Whiteboard Metrics Services API.
+
+    See http://developer.suunto.com for more information.
+  termsOfService: http://suunto.com/wbapi/terms/
+  contact:
+    name: Suunto team
+    url: http://developer.suunto.com
+  
+# Security definitions
+security:
+  - suuntoAccessCode:
+    - public
+
+securityDefinitions:
+  suuntoAccessCode:
+    type: oauth2
+    scopes:
+      public: Grants read/write access to public resources.
+    flow: accessCode
+    authorizationUrl: https://suunto.com/wbapi/login/oauth/authorize
+    tokenUrl: https://suunto.com/wbapi/login/oauth/access_token
+    
+# Paths
+paths:
+  /Whiteboard/Metrics/Pools:
+    get:
+      description: |
+        Returns information about Whiteboard pools and their usage.
+      parameters:
+        -
+          name: startIndex
+          in: query
+          description: |
+            Start index in the pool list, 0 starts from the beginning
+          required: false
+          type: integer
+          format: uint32
+      responses:
+        100:
+          description: Operation completed successfully, there is more data available, use startIndex to query more.
+          schema:
+            $ref: '#/definitions/PoolStatsList'
+        200:
+          description: Operation completed successfully
+          schema:
+            $ref: '#/definitions/PoolStatsList'
+        416: 
+          description: startIndex out of range of number of pools.
+      security:
+        - suuntoAccessCode:
+          - public
+
+definitions:
+  PoolStats:
+    required:
+      - name
+      - size
+      - allocated
+      - highWaterMark
+    properties:
+      name:
+        description: Name of the resource pool.
+        type: string
+      size:
+        description: Size of the resource pool in bytes.
+        type: integer
+        format: uint16
+      allocated:
+        description: Number of currently allocated items.
+        type: integer
+        format: uint16
+      highWaterMark:
+        description: Maximum number of ever allocated items.
+        type: integer
+        format: uint16
+      allocations:
+        description: Total number of allocations ever. May overflow eventually.
+        type: integer
+        format: uint32
+      emptyCount:
+        description: Number of times pool has been empty. May overflow eventually.
+        type: integer
+        format: uint32
+      blockTimeMs:
+        description: Total amount of time pool has been empty in milliseconds. May overflow eventually.
+        type: integer
+        format: uint32
+      maxBlockTimeMs:
+        description: All time highest single block time
+        type: integer
+        format: uint32
+
+  PoolStatsList:
+    required:
+      - pools
+    properties:
+      pools:
+        description: List of all Whiteboard resource pools.
+        type: array
+        items:
+          $ref: '#/definitions/PoolStats'

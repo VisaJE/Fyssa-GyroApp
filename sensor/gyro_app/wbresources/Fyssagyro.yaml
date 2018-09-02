@@ -1,0 +1,113 @@
+# This file defines Suunto Whiteboard API for Movesense Hackathon 2016 sample
+#
+swagger: '2.0'
+
+# Document metadata
+info:
+  version: "0.0.5"
+  title: Gyroscope tests
+  description: |
+    This file defines API for Fyysikkokilta handwaving measurement service.
+  termsOfService:
+  contact:
+    name: Eemil Visakorpi
+    url: http://fyysikkokilta.fi
+# Paths
+paths:
+  /Fyssa/Gyro:
+    get:
+      description: |
+        Get a Data value.
+      responses:
+        200:
+          schema:
+            $ref: '#/definitions/HeadingValue'
+        204:
+          description: Measurement source is unavailable
+  /Fyssa/Gyro/FyssaGyroConfig:
+    put:
+      description: Set sensor sample config.
+      parameters:
+        - name: fyssaGyroConfig
+          in: body
+          description: New configurations for the test.
+          required: true
+          schema:
+            $ref: '#/definitions/FyssaGyroConfig'
+      responses:
+        200:
+          description: success
+        400:
+          description: Illegal config
+
+  /Fyssa/Gyro/Subscription:
+    post:
+      description: |
+        Subscribe to periodic Data values.
+        See documentation on product-specific measurement periods at
+        http://XXX.suunto.com/XXX. If measurement source is unavailable, the
+        Measurement member will be empty. If present, Measurement member
+        contains single measurement result.
+      responses:
+        200:
+          description: Operation completed successfully
+        x-std-errors:
+          description: See common error codes http://developer.suunto.com/api/std-errors#subscribe
+        x-notification:
+          schema:
+              description: Subscribe to heading
+              $ref: '#/definitions/HeadingValue'
+    delete:
+      description: |
+        Unsubscribe from jump count updates
+      responses:
+        200:
+          description: Operation completed successfully
+        x-std-errors:
+          description: See common error codes http://developer.suunto.com/api/std-errors#unsubscribe
+definitions:
+  HeadingValue:
+    description: Describes current heading with two vectors.
+    required:
+      - Frontx
+      - Fronty
+      - Frontz
+      - Topx
+      - Topy
+      - Topz
+    properties:
+      Frontx:
+        type: number
+        format: float
+      Fronty:
+        type: number
+        format: float
+      Frontz:
+        type: number
+        format: float
+      Topx:
+        type: number
+        format: float
+      Topy:
+        type: number
+        format: float
+      Topz:
+        type: number
+        format: float
+  FyssaGyroConfig:
+    type: object
+    required:
+      - rate
+      - threshold
+    properties:
+      rate:
+        description: |
+          Sample rate for gyroscope
+        type: integer
+        format: uint32
+      threshold:
+        description: Smallest angle delta to be considered
+        type: number
+        format: float
+      
+

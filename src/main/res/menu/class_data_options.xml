@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/import_class_data"
+        android:title="Import from clipboard"/>
+
+    <item
+        android:id="@+id/export_class_data"
+        android:title="Export nodes as email"/>
+
+    <item
+        android:id="@+id/init_remote_classifier"
+        android:title="Init remote classifier"/>
+
+    <item
+        android:id="@+id/change_user_name"
+        android:title="Change user name"/>
+
+</menu>

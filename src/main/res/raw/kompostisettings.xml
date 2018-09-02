@@ -1,0 +1,28 @@
+<!-- komposti-SDS runtime configurable settings.
+     Add this file to komposti config directory just like Devices.xml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<komposti>
+    <settings>
+    	<!-- Komposti debug log level into the suuntoapp.log supports these debug levels:
+			LOG_LEVEL_TRACE
+			LOG_LEVEL_DEBUG //recommended for common development use
+			LOG_LEVEL_INFO //for commercial applications
+			LOG_LEVEL_SUCCESS
+			LOG_LEVEL_ERROR
+    		LOG_LEVEL_NONE -->
+    	<!--debugLevel>LOG_LEVEL_INFO</debugLevel-->
+        
+        <!-- The below settings are examples of runtime-configurable parts of komposti-SDS
+             They are the default settings. There is no need to explicitly define any of
+             these unless you want other than defaults. -->
+        <!--whiteboardEnabled>true</whiteboardEnabled-->
+        <!-- While default is ECSD00000000 Mobile apps need to use something else due to possible BLE vs. USB simultaneous usage -->
+        <whiteboardSerial>ECSD00000001</whiteboardSerial>
+        <!-- timeout for all whiteboard requests in milliseconds. restricted to a range of 100 - 30000ms-->
+        <!--whiteboardTimeoutMS>1000</whiteboardTimeoutMS-->
+        <!--deviceDiscoveryEnabled>true</deviceDiscoveryEnabled-->
+        <!--ngSimulatorDeviceDiscoveryHack>false</ngSimulatorDeviceDiscoveryHack-->
+        <inetgwEnabled>false</inetgwEnabled>
+        <!--logRotationAutonomicSend>false</logRotationAutonomicSend-->
+    </settings>
+</komposti>

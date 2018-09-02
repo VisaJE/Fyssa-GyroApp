@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.movesense.mds.fyssagyro">
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true"/>
+
+    <application
+        android:name="com.movesense.mds.fyssagyro.fyssa_app.FyssaApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name="com.movesense.mds.fyssagyro.MainActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.movesense.mds.fyssagyro.app_using_mds_api.SelectTestActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name="com.movesense.mds.fyssagyro.app_using_mds_api.tests.LedTestActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name="com.movesense.mds.fyssagyro.app_using_mds_api.tests.LinearAccelerationTestActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name="com.movesense.mds.fyssagyro.app_using_mds_api.tests.HeartRateTestActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name="com.movesense.mds.fyssagyro.app_using_mds_api.tests.TemperatureTestActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name="com.movesense.mds.fyssagyro.app_using_mds_api.tests.MagneticFieldTestActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name="com.movesense.mds.fyssagyro.app_using_mds_api.tests.AngularVelocityActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name="com.movesense.mds.fyssagyro.app_using_mds_api.tests.MultiSubscribeActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+        android:name="com.movesense.mds.fyssagyro.fyssa_app.FyssaInfoActivity"
+        android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name="com.movesense.mds.fyssagyro.fyssa_app.FyssaMainActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths"/>
+        </provider>
+
+        <activity
+            android:name="com.movesense.mds.fyssagyro.app_using_mds_api.DfuActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name="com.movesense.mds.fyssagyro.app_using_mds_api.FyssaSensorUpdateActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
+
+
+        <service
+            android:name="com.movesense.mds.fyssagyro.app_using_mds_api.dfu.DfuService"
+            android:exported="true">
+        </service>
+
+        <receiver
+            android:name="com.movesense.mds.fyssagyro.app_using_mds_api.adb.AdbBridge"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MOVESENSE"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- Mqtt Service -->
+        <service android:name="org.eclipse.paho.android.service.MqttService">
+        </service>
+    </application>
+
+</manifest>

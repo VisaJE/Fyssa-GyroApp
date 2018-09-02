@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/dfu_mode"
+        android:title="@string/dfu_mode"/>
+    <item
+        android:id="@+id/update"
+        android:title="@string/update"/>
+
+    <item
+        android:id="@+id/disconnect"
+        android:title="@string/disconnect"/>
+
+</menu>

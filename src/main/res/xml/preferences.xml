@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:title="Trigger period"
+        android:summary="Please provide the trigger period"
+        android:defaultValue="0"
+        android:entries="@array/triggerPeriodsArray"
+        android:entryValues="@array/triggerPeriodsValues"
+        android:key="trigger_period_id"/>
+    <EditTextPreference android:title="Noise level"
+        android:defaultValue="2.0"
+        android:summary="Set the noise level of the total acceleration [m/s^2]."
+        android:key="noise_level" />
+    <EditTextPreference android:title="Min amplitude"
+        android:defaultValue="2.0"
+        android:summary="Set the minimum spatial amplitude of the periodic motion [cm]."
+        android:key="minimum_amplitude" />
+</PreferenceScreen>

@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parentLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp"
+    tools:context="com.movesense.mds.fyssagyro.app_using_mds_api.DfuActivity">
+
+    <!--START Dfu status section-->
+    <TextView
+        android:id="@+id/dfu_status_section_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/movesenseBackground"
+        android:gravity="center"
+        android:text="DFU"
+        android:textAllCaps="true"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="0dp"/>
+
+    <TextView
+        android:id="@+id/dfu_status_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/dfu_status"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dfu_status_section_tv"/>
+
+    <Button
+        android:id="@+id/dfu_enable_dfu_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enable DFU"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dfu_status_tv"/>
+    <!--END Dfu status section-->
+
+
+    <!--START Application titles column-->
+    <TextView
+        android:id="@+id/dfu_application_title_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@color/movesenseBackground"
+        android:gravity="center"
+        android:text="Application"
+        android:textAllCaps="true"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dfu_enable_dfu_btn"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="0dp"/>
+
+    <TextView
+        android:id="@+id/dfu_file_name_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="File name:"
+        app:layout_constraintHorizontal_bias="0.3"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dfu_application_title_tv"/>
+
+    <TextView
+        android:id="@+id/dfu_file_type_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="File Type:"
+        app:layout_constraintLeft_toLeftOf="@id/dfu_file_name_tv"
+        app:layout_constraintTop_toBottomOf="@id/dfu_file_name_tv"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp"/>
+
+    <TextView
+        android:id="@+id/dfu_file_size_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="File Size:"
+        app:layout_constraintLeft_toLeftOf="@id/dfu_file_name_tv"
+        app:layout_constraintTop_toBottomOf="@id/dfu_file_type_tv"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp"/>
+
+    <TextView
+        android:id="@+id/dfu_file_status_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Status:"
+        app:layout_constraintLeft_toLeftOf="@id/dfu_file_name_tv"
+        app:layout_constraintTop_toBottomOf="@id/dfu_file_size_tv"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp"/>
+    <!--END Application titles column-->
+
+
+    <!--START Application values column-->
+    <TextView
+        android:id="@+id/dfu_file_name_value_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        app:layout_constraintLeft_toRightOf="@id/dfu_file_name_tv"
+        app:layout_constraintTop_toBottomOf="@id/dfu_application_title_tv"
+        app:layout_constraintTop_toTopOf="@id/dfu_file_name_tv"
+        tools:text="Test name"/>
+
+    <TextView
+        android:id="@+id/dfu_file_type_value_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        app:layout_constraintLeft_toRightOf="@id/dfu_file_type_tv"
+        app:layout_constraintTop_toBottomOf="@id/dfu_file_name_tv"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp"
+        tools:text="Test type"/>
+
+    <TextView
+        android:id="@+id/dfu_file_size_value_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        app:layout_constraintLeft_toRightOf="@id/dfu_file_size_tv"
+        app:layout_constraintTop_toBottomOf="@id/dfu_file_type_tv"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp"
+        tools:text="Test Size"/>
+
+    <TextView
+        android:id="@+id/dfu_file_status_value_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        app:layout_constraintLeft_toRightOf="@id/dfu_file_status_tv"
+        app:layout_constraintTop_toBottomOf="@id/dfu_file_size_tv"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp"
+        tools:text="Test Status"/>
+    <!--END Application values column-->
+
+    <Button
+        android:id="@+id/dfu_select_file_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Select File"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dfu_file_status_tv"/>
+
+    <TextView
+        android:id="@+id/dfu_device_firmware_update_tv"
+        android:layout_width="220dp"
+        android:layout_height="18dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/movesenseBackground"
+        android:gravity="center"
+        android:text="Device Firmware Update"
+        android:textAllCaps="true"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/sw_version"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dfu_select_file_btn" />
+
+    <Button
+        android:id="@+id/dfu_upload_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:enabled="false"
+        android:text="Upload"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dfu_device_firmware_update_tv"/>
+
+    <TextView
+        android:id="@+id/dfu_uploading_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/uploading"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dfu_upload_btn"/>
+
+    <TextView
+        android:id="@+id/dfu_uploading_percent_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/_0percent"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dfu_uploading_tv"/>
+
+
+    <Button
+        android:id="@+id/dfu_select_device_btn"
+        style="@style/TextAppearance.AppCompat.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="Select Device"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <TextView
+        android:id="@+id/sw_version"
+        android:layout_width="104dp"
+        android:layout_height="17dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/dfu_upload_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dfu_select_file_btn"
+        tools:text="test" />
+
+</android.support.constraint.ConstraintLayout>
