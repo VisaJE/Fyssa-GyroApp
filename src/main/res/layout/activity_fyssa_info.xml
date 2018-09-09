@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorBackground"
     android:orientation="vertical"
-    tools:context="com.movesense.mds.fyssagyro.fyssa_app.FyssaMainActivity">
+    tools:context="com.movesense.mds.fyssagyro.fyssa_app.FyssaGyroMainActivity">
 
     <EditText
         android:id="@+id/fyssa_info_nameET"

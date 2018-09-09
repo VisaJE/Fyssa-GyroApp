@@ -49,6 +49,6 @@ public class FyssaInfoActivity extends AppCompatActivity {
     }
 
     private void startMainActivity() {
-        startActivity(new Intent(FyssaInfoActivity.this, FyssaMainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        startActivity(new Intent(FyssaInfoActivity.this, FyssaGyroMainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
     }
 }

@@ -19,7 +19,8 @@ import com.movesense.mds.fyssagyro.MdsRx;
 import com.movesense.mds.fyssagyro.R;
 import com.movesense.mds.fyssagyro.ThrowableToastingAction;
 import com.movesense.mds.fyssagyro.app_using_mds_api.model.MovesenseConnectedDevices;
-import com.movesense.mds.fyssagyro.fyssa_app.FyssaMainActivity;
+import com.movesense.mds.fyssagyro.fyssa_app.FyssaGyroMainActivity;
+import com.movesense.mds.fyssagyro.fyssa_app.FyssaImuMainActivity;
 import com.movesense.mds.fyssagyro.model.MdsConnectedDevice;
 
 import butterknife.ButterKnife;
@@ -35,6 +36,7 @@ public class SelectTestActivity extends AppCompatActivity {
     private boolean closeApp = false;
     private boolean disconnect = false;
     private ImageButton startButton;
+    private ImageButton startButton2;
     private ImageButton updateButton;
 
     private final String TAG = SelectTestActivity.class.getSimpleName();
@@ -50,40 +52,27 @@ public class SelectTestActivity extends AppCompatActivity {
         alertDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.close_app)
                 .setMessage(R.string.do_you_want_to_close_application)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        closeApp = true;
-                        BleManager.INSTANCE.disconnect(MovesenseConnectedDevices.getConnectedRxDevice(0));
-                    }
+                .setPositiveButton(R.string.yes, (dialog, which) -> {
+                    closeApp = true;
+                    BleManager.INSTANCE.disconnect(MovesenseConnectedDevices.getConnectedRxDevice(0));
                 })
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        alertDialog.dismiss();
-                    }
-                })
+                .setNegativeButton(R.string.no, (dialog, which) -> alertDialog.dismiss())
                 .create();
 
-        updateButton = (ImageButton) findViewById(R.id.update_button);
         startButton = (ImageButton) findViewById(R.id.start_button);
+        startButton2 = (ImageButton) findViewById(R.id.start_button2);
 
-        updateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("ONCLICK", "Update activity");
-                startActivity(new Intent(SelectTestActivity.this, FyssaSensorUpdateActivity.class)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
-            }
+
+        startButton.setOnClickListener(v -> {
+            Log.d("ONCLICK", "Start the app");
+            startActivity(new Intent(SelectTestActivity.this, FyssaGyroMainActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
         });
 
-        startButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("ONCLICK", "Start the app");
-                startActivity(new Intent(SelectTestActivity.this, FyssaMainActivity.class)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
-            }
+        startButton2.setOnClickListener(v -> {
+            Log.d("ONCLICK", "Start the app");
+            startActivity(new Intent(SelectTestActivity.this, FyssaImuMainActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
         });
 
         subscriptions.add(MdsRx.Instance.connectedDeviceObservable()
@@ -131,9 +120,6 @@ public class SelectTestActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.dfu_mode:
-                startActivity(new Intent(SelectTestActivity.this, DfuActivity.class));
-                return true;
 
             case R.id.update:
                 startActivity(new Intent(SelectTestActivity.this, FyssaSensorUpdateActivity.class));

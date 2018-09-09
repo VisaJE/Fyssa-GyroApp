@@ -46,6 +46,11 @@ CREATE_GROUP(FYSSA_GYRO_,
     static_cast<uint16_t>(FYSSA_GYRO_TOPY),
     static_cast<uint16_t>(FYSSA_GYRO_TOPZ));
 
+CREATE_GROUP(FYSSA_IMU_,
+    static_cast<uint16_t>(FYSSA_IMU_X),
+    static_cast<uint16_t>(FYSSA_IMU_Y),
+    static_cast<uint16_t>(FYSSA_IMU_Z));
+
 CREATE_GROUP(MEAS_ACC_SAMPLERATE_ARRAYACC_,
     static_cast<uint16_t>(MEAS_ACC_SAMPLERATE_ARRAYACC_X),
     static_cast<uint16_t>(MEAS_ACC_SAMPLERATE_ARRAYACC_Y),
@@ -929,6 +934,9 @@ const DescriptorItem_t s_possibleSbemItems[] = {
     {FYSSA_GYRO_TOPX, "<PTH>Fyssa.Gyro.Topx\n<FRM>float32"},
     {FYSSA_GYRO_TOPY, "<PTH>Fyssa.Gyro.Topy\n<FRM>float32"},
     {FYSSA_GYRO_TOPZ, "<PTH>Fyssa.Gyro.Topz\n<FRM>float32"},
+    {FYSSA_IMU_X, "<PTH>Fyssa+Imu.X\n<FRM>float32"},
+    {FYSSA_IMU_Y, "<PTH>Fyssa.Imu.Y\n<FRM>float32"},
+    {FYSSA_IMU_Z, "<PTH>Fyssa.Imu.Z\n<FRM>float32"},
     {MEAS_ACC_SAMPLERATE_ARRAYACC_X, "<PTH>Meas.Acc.SampleRate.ArrayAcc+x\n<FRM>float32"},
     {MEAS_ACC_SAMPLERATE_ARRAYACC_Y, "<PTH>Meas.Acc.SampleRate.ArrayAcc.y\n<FRM>float32"},
     {MEAS_ACC_SAMPLERATE_ARRAYACC_Z, "<PTH>Meas.Acc.SampleRate.ArrayAcc.z\n<FRM>float32"},
@@ -979,6 +987,7 @@ const DescriptorItem_t s_possibleSbemItems[] = {
 
 const DescriptorGroup_t s_possibleSbemGroups[] = {
     FYSSA_GYRO__Group,
+    FYSSA_IMU__Group,
     MEAS_ACC_SAMPLERATE_ARRAYACC__Group,
     MEAS_ACC_SAMPLERATE_1_Group,
     MEAS_ACC_SAMPLERATE_2_Group,
@@ -1093,6 +1102,33 @@ size_t writeToSbemBuffer_FYSSA_GYRO(void *buffer, size_t bufferLen, size_t start
     }
     {
         auto value = data.topz;
+        const uint8_t *src = reinterpret_cast<const uint8_t*>(&value);
+        for(size_t i=0; i<sizeof(value); i++, src++, bytesRead++)
+            if ((bytesRead >= startOffset) && (bytesWritten < bufferLen)) byteBuf[bytesWritten++] = *src;
+    }
+    return bytesWritten;
+}
+
+
+
+size_t writeToSbemBuffer_FYSSA_IMU(void *buffer, size_t bufferLen, size_t startOffset, const WB_RES::LOCAL::FYSSA_IMU::EVENT::NotificationType &data){
+    size_t bytesRead = 0;
+    size_t bytesWritten = 0;
+    uint8_t *byteBuf = static_cast<uint8_t*>(buffer);
+    {
+        auto value = data.x;
+        const uint8_t *src = reinterpret_cast<const uint8_t*>(&value);
+        for(size_t i=0; i<sizeof(value); i++, src++, bytesRead++)
+            if ((bytesRead >= startOffset) && (bytesWritten < bufferLen)) byteBuf[bytesWritten++] = *src;
+    }
+    {
+        auto value = data.y;
+        const uint8_t *src = reinterpret_cast<const uint8_t*>(&value);
+        for(size_t i=0; i<sizeof(value); i++, src++, bytesRead++)
+            if ((bytesRead >= startOffset) && (bytesWritten < bufferLen)) byteBuf[bytesWritten++] = *src;
+    }
+    {
+        auto value = data.z;
         const uint8_t *src = reinterpret_cast<const uint8_t*>(&value);
         for(size_t i=0; i<sizeof(value); i++, src++, bytesRead++)
             if ((bytesRead >= startOffset) && (bytesWritten < bufferLen)) byteBuf[bytesWritten++] = *src;
@@ -1514,6 +1550,13 @@ size_t getSbemLength_FYSSA_GYRO(const WB_RES::LOCAL::FYSSA_GYRO::EVENT::Notifica
 
 
 
+size_t getSbemLength_FYSSA_IMU(const WB_RES::LOCAL::FYSSA_IMU::EVENT::NotificationType &data)
+{
+    return (0 + 4 + 4 + 4);
+}
+
+
+
 size_t getSbemLength_MEAS_ACC_SAMPLERATE(const WB_RES::LOCAL::MEAS_ACC_SAMPLERATE::EVENT::NotificationType &data)
 {
     return (0 + 4 + data.arrayAcc.size() * (0  + 4 + 4 + 4 ) );
@@ -1597,6 +1640,8 @@ int16_t getSbemLengthConst(whiteboard::LocalResourceId localResId)
     {
     case WB_RES::LOCAL::FYSSA_GYRO::LID:
         return (24);
+    case WB_RES::LOCAL::FYSSA_IMU::LID:
+        return (12);
     case WB_RES::LOCAL::MEAS_TEMP::LID:
         return (8);
     case WB_RES::LOCAL::TIME::LID:
@@ -1614,6 +1659,8 @@ size_t getSbemLength(whiteboard::LocalResourceId localResId, const whiteboard::V
     {
     case WB_RES::LOCAL::FYSSA_GYRO::LID:
         return getSbemLength_FYSSA_GYRO(data.convertTo<WB_RES::LOCAL::FYSSA_GYRO::EVENT::NotificationType>());
+    case WB_RES::LOCAL::FYSSA_IMU::LID:
+        return getSbemLength_FYSSA_IMU(data.convertTo<WB_RES::LOCAL::FYSSA_IMU::EVENT::NotificationType>());
     case WB_RES::LOCAL::MEAS_ACC_SAMPLERATE::LID:
         return getSbemLength_MEAS_ACC_SAMPLERATE(data.convertTo<WB_RES::LOCAL::MEAS_ACC_SAMPLERATE::EVENT::NotificationType>());
     case WB_RES::LOCAL::MEAS_ECG_REQUIREDSAMPLERATE::LID:
@@ -1648,6 +1695,8 @@ size_t writeToSbemBuffer(void *buffer, size_t bufferLen, size_t startOffset, whi
     {
     case WB_RES::LOCAL::FYSSA_GYRO::LID:
         return writeToSbemBuffer_FYSSA_GYRO(buffer, bufferLen, startOffset, data.convertTo<WB_RES::LOCAL::FYSSA_GYRO::EVENT::NotificationType>());
+    case WB_RES::LOCAL::FYSSA_IMU::LID:
+        return writeToSbemBuffer_FYSSA_IMU(buffer, bufferLen, startOffset, data.convertTo<WB_RES::LOCAL::FYSSA_IMU::EVENT::NotificationType>());
     case WB_RES::LOCAL::MEAS_ACC_SAMPLERATE::LID:
         return writeToSbemBuffer_MEAS_ACC_SAMPLERATE(buffer, bufferLen, startOffset, data.convertTo<WB_RES::LOCAL::MEAS_ACC_SAMPLERATE::EVENT::NotificationType>());
     case WB_RES::LOCAL::MEAS_ECG_REQUIREDSAMPLERATE::LID:
@@ -1682,6 +1731,7 @@ const SbemResID2ItemIdMapping s_sbemResID2ItemIdMap[] = {
 
 const SbemResID2GrpIdMapping s_sbemResID2GrpIdMap[] = {
     {WB_RES::LOCAL::FYSSA_GYRO::LID,  + 4 + 4 + 4 + 4 + 4 + 4, FYSSA_GYRO__Group },
+    {WB_RES::LOCAL::FYSSA_IMU::LID,  + 4 + 4 + 4, FYSSA_IMU__Group },
     {WB_RES::LOCAL::MEAS_ACC_SAMPLERATE::LID,  + 4 +  (1)  * (0  + 4 + 4 + 4 ) , MEAS_ACC_SAMPLERATE_1_Group },
     {WB_RES::LOCAL::MEAS_ACC_SAMPLERATE::LID,  + 4 +  (2)  * (0  + 4 + 4 + 4 ) , MEAS_ACC_SAMPLERATE_2_Group },
     {WB_RES::LOCAL::MEAS_ACC_SAMPLERATE::LID,  + 4 +  (3)  * (0  + 4 + 4 + 4 ) , MEAS_ACC_SAMPLERATE_3_Group },

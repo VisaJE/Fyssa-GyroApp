@@ -4,7 +4,7 @@ swagger: '2.0'
 
 # Document metadata
 info:
-  version: "0.0.5"
+  version: "0.1.1"
   title: Gyroscope tests
   description: |
     This file defines API for Fyysikkokilta handwaving measurement service.
@@ -22,6 +22,17 @@ paths:
         200:
           schema:
             $ref: '#/definitions/HeadingValue'
+        204:
+          description: Measurement source is unavailable
+  /Fyssa/Imu:
+    get:
+      description: |
+        Reset the imu system.
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/PositionValue'
         204:
           description: Measurement source is unavailable
   /Fyssa/Gyro/FyssaGyroConfig:
@@ -57,6 +68,46 @@ paths:
           schema:
               description: Subscribe to heading
               $ref: '#/definitions/HeadingValue'
+    delete:
+      description: |
+        Unsubscribe from jump count updates
+      responses:
+        200:
+          description: Operation completed successfully
+        x-std-errors:
+          description: See common error codes http://developer.suunto.com/api/std-errors#unsubscribe
+  /Fyssa/Imu/FyssaAccConfig:
+    put:
+      description: Set accelerometer config.
+      parameters:
+        - name: fyssaAccConfig
+          in: body
+          description: New configurations for the test.
+          required: true
+          schema:
+            $ref: '#/definitions/FyssaAccConfig'
+      responses:
+        200:
+          description: success
+        400:
+          description: Illegal config
+  /Fyssa/Imu/Subscription:
+    post:
+      description: |
+        Subscribe to periodic Data values.
+        See documentation on product-specific measurement periods at
+        http://XXX.suunto.com/XXX. If measurement source is unavailable, the
+        Measurement member will be empty. If present, Measurement member
+        contains single measurement result.
+      responses:
+        200:
+          description: Operation completed successfully
+        x-std-errors:
+          description: See common error codes http://developer.suunto.com/api/std-errors#subscribe
+        x-notification:
+          schema:
+              description: Subscribe to position
+              $ref: '#/definitions/PositionValue'
     delete:
       description: |
         Unsubscribe from jump count updates
@@ -109,5 +160,38 @@ definitions:
         description: Smallest angle delta to be considered
         type: number
         format: float
-      
-
+  PositionValue:
+    description: Current positionin meters.
+    required:
+      - X
+      - Y
+      - Z
+    properties:
+      X:
+        type: number
+        format: float
+      Y:
+        type: number
+        format: float
+      Z:
+        type: number
+        format: float
+  FyssaAccConfig:
+    type: object
+    required:
+      - rate
+      - threshold
+      - filter
+    properties:
+      rate:
+        description: |
+          Sample rate for gyroscope
+        type: integer
+        format: uint32
+      threshold:
+        description: Smallest movement to be considered
+        type: number
+        format: float
+      filter:
+        description: Choose if movement should only be calculated when the sensor rotates.
+        type: boolean

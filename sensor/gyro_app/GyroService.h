@@ -120,31 +120,57 @@ private:
 
     whiteboard::RequestId mRemoteRequestId;
     whiteboard::ResourceId	mMeasAccResourceId;
+    whiteboard::ResourceId	mMeasGyroResourceId;
 
     bool isRunning;
+    void calibrate();
 
+    // Stuff for the gyro
+
+    void onGyroData(whiteboard::ResourceId resourceId, const whiteboard::Value& value,
+                                          const whiteboard::ParameterList& parameters);
     float minAngleSquared;
     uint32_t sampleRate;
     
     bool isCalibrating = false;
+    bool isTurning = false;
     bool memoryBit;
     float zeroAngularX = 0;
     float zeroAngularY = 0;
     float zeroAngularZ = 0;
 
-    void calibrateGyro();
+    
 
     const uint32_t SAMPLE_RATES[8] =  {13, 26, 52, 104, 208, 416, 833, 1666};
     int upCounter = 0;
 
-    whiteboard::TimerId mTimer;
-    uint32_t shutdownCounter;
 
-    gyrospinner::Vector currentHeadingX = {1.0, 0.0, 0.0}; 
-    gyrospinner::Vector currentHeadingY = {0.0, 1.0, 0.0};
-    gyrospinner::Vector currentHeadingZ();
+
+    gyrospinner::Vector startHeadingX = {1.0, 0.0, 0.0}; 
+    gyrospinner::Vector startHeadingY = {0.0, 1.0, 0.0};
+    gyrospinner::Vector crossProduct(gyrospinner::Vector a, gyrospinner::Vector b);
 
     gyrospinner::Quaternion totalRotation = {1.0, {0.0, 0.0, 0.0}};
+    
+    bool orientate = false;
 
+    // True if imu is subscribed and gyro is not (by the mobile client)
+    bool imuSubscription = false;
+    // Stuff for accelerometer
+    void onAccData(whiteboard::ResourceId resourceId, const whiteboard::Value& value,
+                                          const whiteboard::ParameterList& parameters);
+    
+    float xSpeed = 0;
+    float ySpeed = 0;
+    float zSpeed = 0;
+    float minAccSquared;
+    float g = 9.81;
+    uint32_t accSampleRate;
+    float position[3] = {0.0, 0.0, 0.0};
+    
+    bool filterWithGyro = true;
 
+    whiteboard::TimerId mTimer;
+    whiteboard::TimerId mCalibTimer;
+    uint32_t shutdownCounter;
 };

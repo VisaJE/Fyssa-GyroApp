@@ -70,6 +70,7 @@ fastlane/test_output
 fastlane/readme.md
 
 sensor/buildtempfolder
+sensor/buildfolderGyro
 sensor/buildtempfolder2
 sensor/_build
 

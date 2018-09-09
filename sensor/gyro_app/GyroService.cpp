@@ -26,12 +26,15 @@
 // LED blinking period in adertsing mode
 #define LED_BLINKING_PERIOD 6000
 
+#define CALIBRATION_TIME 1000
+
 const char* const GyroService::LAUNCHABLE_NAME = "GyroService";
 
-#define DEGREES_PER_PI = 57.2957795130
+#define DEGREES_PER_PI 57.2957795130
 
 
 const char* GYRO_PATH = "/meas/gyro/";
+const char* ACC_PATH = "/meas/acc/";
 
 static const whiteboard::ExecutionContextId sExecutionContextId =
     WB_RES::LOCAL::FYSSA_GYRO::EXECUTION_CONTEXT;
@@ -39,6 +42,8 @@ static const whiteboard::ExecutionContextId sExecutionContextId =
 static const whiteboard::LocalResourceId sProviderResources[] = {
     WB_RES::LOCAL::FYSSA_GYRO::LID,
     WB_RES::LOCAL::FYSSA_GYRO_FYSSAGYROCONFIG::LID,
+    WB_RES::LOCAL::FYSSA_IMU::LID,
+    WB_RES::LOCAL::FYSSA_IMU_FYSSAACCCONFIG::LID,
 };
 
 
@@ -48,10 +53,13 @@ GyroService::GyroService()
       LaunchableModule(LAUNCHABLE_NAME, sExecutionContextId),
       isRunning(false),
       sampleRate(208),
-      minAngleSquared(0.001)
+      minAngleSquared(0.00001),
+      accSampleRate(208),
+      minAccSquared(0.001)
 {
 
     mTimer = whiteboard::ID_INVALID_TIMER;
+    mCalibTimer = whiteboard::ID_INVALID_TIMER;
     // Reset max acceleration members
     reset();
 
@@ -112,15 +120,15 @@ void GyroService::onGetRequest(const whiteboard::Request& request,
     case WB_RES::LOCAL::FYSSA_GYRO::ID:
     {
         DEBUGLOG("D/SENSOR/Rotating and resetting.");
-        currentHeadingX = gyrospinner::QuickMafs::rotate({1.0, 0.0, 0.0}, totalRotation);
-        currentHeadingY = gyrospinner::QuickMafs::rotate({0.0, 1.0, 0.0}, totalRotation);
+        startHeadingX = gyrospinner::QuickMafs::rotate({1.0, 0.0, 0.0}, totalRotation);
+        startHeadingY = gyrospinner::QuickMafs::rotate({0.0, 1.0, 0.0}, totalRotation);
         shutdownCounter = 0;
         reset();
-        calibrateGyro();
+        if (!isRunning) calibrate();
         WB_RES::HeadingValue res;
-        res.frontx = currentHeadingX.i;
-        res.fronty = currentHeadingX.j;
-        res.frontz = currentHeadingX.k;
+        res.frontx = startHeadingX.i;
+        res.fronty = startHeadingX.j;
+        res.frontz = startHeadingX.k;
         res.topx = zeroAngularX;
         res.topy = zeroAngularY;
         res.topz = zeroAngularZ;
@@ -130,6 +138,24 @@ void GyroService::onGetRequest(const whiteboard::Request& request,
     }
 
     break;
+    case WB_RES::LOCAL::FYSSA_IMU::ID:
+    {
+        DEBUGLOG("D/SENSOR/Fyssa_Imu get");
+        if (!isRunning)
+        {
+            returnResult(request, whiteboard::HTTP_CODE_SERVICE_UNAVAILABLE);
+            break;
+        }
+        reset();
+        calibrate();
+        WB_RES::PositionValue res;
+        res.x = position[0];
+        res.y = position[1];
+        res.z = position[2];
+        returnResult(request, whiteboard::HTTP_CODE_OK,
+            ResponseOptions::Empty, res);
+        break;
+    }
 
     default:
         // Return error
@@ -177,6 +203,32 @@ void GyroService::onPutRequest(const whiteboard::Request& request,
         returnResult(request, whiteboard::HTTP_CODE_OK);
         break;
     }
+    case WB_RES::LOCAL::FYSSA_IMU_FYSSAACCCONFIG::ID:
+    {
+        bool wasRunning = isRunning;
+        if (wasRunning) stopRunning();
+        // Parse and gather the specified settings
+        auto config = WB_RES::LOCAL::FYSSA_IMU_FYSSAACCCONFIG::PUT::ParameterListRef(parameters).getFyssaAccConfig();
+        int i = 0;
+        while (accSampleRate != (uint32_t) config.rate && i++ < 8) {
+            if (SAMPLE_RATES[i] == (uint32_t)config.rate) {
+                accSampleRate = (uint32_t)config.rate;
+            }
+        }
+
+        if (accSampleRate != (uint32_t) config.rate) {
+            DEBUGLOG("D/SENSOR/Updating sample rate failed:");
+            returnResult(request, whiteboard::HTTP_CODE_BAD_REQUEST);
+        }
+        else
+        {
+            minAccSquared = ((float)config.threshold) * ((float)config.threshold);
+        }
+        filterWithGyro = (bool)config.filter;
+        if (wasRunning) startRunning(mRemoteRequestId);
+        returnResult(request, whiteboard::HTTP_CODE_OK);
+        break;
+    }
   default:
         // Return error
         return returnResult(request, whiteboard::HTTP_CODE_NOT_IMPLEMENTED);
@@ -192,7 +244,10 @@ void GyroService::onSubscribe(const whiteboard::Request& request,
     switch (request.getResourceConstId())
     {
     case WB_RES::LOCAL::FYSSA_GYRO::ID:
+    imuSubscription = true;
+    case WB_RES::LOCAL::FYSSA_IMU::ID:
     {
+        imuSubscription = !imuSubscription;
         DEBUGLOG("D/SENSOR/Subscription for orientation");
         if(startRunning(mRemoteRequestId) == whiteboard::HTTP_CODE_OK) {
 
@@ -245,12 +300,22 @@ whiteboard::Result GyroService::startRunning(whiteboard::RequestId& remoteReques
     char buff[20];
     snprintf(buff, sizeof(buff), "%s%d", GYRO_PATH, sampleRate);
 
-    wb::Result result = getResource((const char*) buff, mMeasAccResourceId);
+    wb::Result result = getResource((const char*) buff, mMeasGyroResourceId);
     if (!wb::RETURN_OKC(result))
     {
         return result;
     }
-    result = asyncSubscribe(mMeasAccResourceId, AsyncRequestOptions(&remoteRequestId, 0, true));
+    result = asyncSubscribe(mMeasGyroResourceId, AsyncRequestOptions(&remoteRequestId, 0, true));
+
+    char buff2[20];
+    snprintf(buff2, sizeof(buff2), "%s%d", ACC_PATH, accSampleRate);
+
+    wb::Result result2 = getResource((const char*) buff2, mMeasAccResourceId);
+    if (!wb::RETURN_OKC(result))
+    {
+        return result;
+    }
+    result2 = asyncSubscribe(mMeasAccResourceId, AsyncRequestOptions(&remoteRequestId, 0, true));
 
     isRunning = true;
 
@@ -273,6 +338,11 @@ whiteboard::Result GyroService::stopRunning()
     {
         DEBUGLOG("D/SENSOR/asyncUnsubscribe threw error: %u", result);
     }
+    wb::Result result2 = asyncUnsubscribe(mMeasGyroResourceId, NULL);
+    if (!wb::RETURN_OKC(result))
+    {
+        DEBUGLOG("D/SENSOR/asyncUnsubscribe threw error: %u", result);
+    }
     isRunning = false;
     return whiteboard::HTTP_CODE_OK;
 }
@@ -287,97 +357,194 @@ void GyroService::onNotify(whiteboard::ResourceId resourceId, const whiteboard::
     {
     case WB_RES::LOCAL::MEAS_GYRO_SAMPLERATE::ID:
     {
-        const WB_RES::GyroData& turnRateValue =
-            value.convertTo<const WB_RES::GyroData&>();
+        onGyroData(resourceId, value, parameters);
+        break;
+    }
+    case WB_RES::LOCAL::MEAS_ACC_SAMPLERATE::ID:
+    {
+        onAccData(resourceId, value, parameters);
+        break;
+    }
+    
+    }
+}
 
-        if (turnRateValue.arrayGyro.size() <= 0)
-        {
-            // No value, do nothing...
-            return;
-        }
+void GyroService::onGyroData(whiteboard::ResourceId resourceId, const whiteboard::Value& value,
+                                          const whiteboard::ParameterList& parameters)
+{
+    const WB_RES::GyroData& turnRateValue =
+                value.convertTo<const WB_RES::GyroData&>();
 
-        const whiteboard::Array<whiteboard::FloatVector3D>& arrayData = turnRateValue.arrayGyro;
-        uint32_t relativeTime = turnRateValue.timestamp;
-
-        if (isCalibrating)
-        {
-
-            for (size_t i = 0; i < arrayData.size(); i++)
-            {
-                whiteboard::FloatVector3D gyroValue = arrayData[i];
-                zeroAngularX = (zeroAngularX + gyroValue.mX)/2;
-                zeroAngularY = (zeroAngularY + gyroValue.mY)/2;
-                zeroAngularZ = (zeroAngularZ + gyroValue.mZ)/2;
-            }
-        isCalibrating = false;
+    if (turnRateValue.arrayGyro.size() <= 0)
+    {
+        // No value, do nothing...
         return;
-        }
+    }
 
+    const whiteboard::Array<whiteboard::FloatVector3D>& arrayData = turnRateValue.arrayGyro;
+    uint32_t relativeTime = turnRateValue.timestamp;
 
+    if (isCalibrating)
+    {
         for (size_t i = 0; i < arrayData.size(); i++)
         {
             whiteboard::FloatVector3D gyroValue = arrayData[i];
-            gyrospinner::Vector axis;
-            axis.i = (gyroValue.mX - zeroAngularX)/(sampleRate*DEGREES_PER_PI);
-            axis.j = (gyroValue.mY - zeroAngularY)/(sampleRate*DEGREES_PER_PI);
-            axis.k = (gyroValue.mZ - zeroAngularZ)/(sampleRate*DEGREES_PER_PI);
-            float angle = gyrospinner::QuickMafs::normalize(&axis);
-            if (angle*angle > minAngleSquared) {
-                totalRotation = gyrospinner::QuickMafs::product(gyrospinner::QuickMafs::constructRotator(axis, angle), totalRotation); 
+            zeroAngularX = zeroAngularX*3/4 + gyroValue.mX/4;
+            zeroAngularY = zeroAngularY*3/4 + gyroValue.mY/4;
+            zeroAngularZ = zeroAngularZ*3/4 + gyroValue.mZ/4;
             }
+    return;
+    }
 
+    for (size_t i = 0; i < arrayData.size(); i++)
+    {
+        whiteboard::FloatVector3D gyroValue = arrayData[i];
+        gyrospinner::Vector axis;
+        axis.i = (gyroValue.mX - zeroAngularX)/(sampleRate*DEGREES_PER_PI);
+        axis.j = (gyroValue.mY - zeroAngularY)/(sampleRate*DEGREES_PER_PI);
+        axis.k = (gyroValue.mZ - zeroAngularZ)/(sampleRate*DEGREES_PER_PI);
+        float angle = gyrospinner::QuickMafs::normalize(&axis);
+        if (angle*angle > minAngleSquared) {
+            isTurning = true;
+            totalRotation = gyrospinner::QuickMafs::product(gyrospinner::QuickMafs::constructRotator(axis, angle), totalRotation); 
+        } else isTurning = false;
+
+        if (!imuSubscription)
+        {
             if (upCounter >= (int)sampleRate/4) 
             {
-                DEBUGLOG("D/SENSOR/OnNotify():angle: %u", (uint32_t)(angle*1000));
-                currentHeadingX = gyrospinner::QuickMafs::rotate({1.0, 0.0, 0.0}, totalRotation);
-                currentHeadingY = gyrospinner::QuickMafs::rotate({0.0, 1.0, 0.0}, totalRotation);
-                gyrospinner::QuickMafs::normalize(&currentHeadingX);
-                gyrospinner::QuickMafs::normalize(&currentHeadingY);
+                DEBUGLOG("D/SENSOR/OnNotify():angle x 1000: %u", (uint32_t)(angle*1000));
+                gyrospinner::Vector headingX = gyrospinner::QuickMafs::rotate(startHeadingX, totalRotation);
+                gyrospinner::Vector headingY = gyrospinner::QuickMafs::rotate(startHeadingY, totalRotation);
+                gyrospinner::QuickMafs::normalize(&headingX);
+                gyrospinner::QuickMafs::normalize(&headingY);
                 upCounter = 0;
                 WB_RES::HeadingValue res;
-                res.frontx = currentHeadingX.i;
-                res.fronty = currentHeadingX.j;
-                res.frontz = currentHeadingX.k;
-                // TEMP PUSH FOR TURN AXIS INFO
-                res.topx = axis.i;
-                res.topy = axis.j;
-                res.topz = axis.k;
-                /*res.topx = currentHeadingY.i;
-                res.topy = currentHeadingY.j;
-                res.topz = currentHeadingY.k;*/
+                res.frontx = headingX.i;
+                res.fronty = headingX.j;
+                res.frontz = headingX.k;
+                res.topx = headingY.i;
+                res.topy = headingY.j;
+                res.topz = headingY.k;
                 updateResource(WB_RES::LOCAL::FYSSA_GYRO(),
-                     ResponseOptions::Empty, res);
+                    ResponseOptions::Empty, res);
             } else ++upCounter;
         }
     }
-    break;
+}
+
+void GyroService::onAccData(whiteboard::ResourceId resourceId, const whiteboard::Value& value,
+                                          const whiteboard::ParameterList& parameters)
+{
+    const WB_RES::AccData& accValues =
+                value.convertTo<const WB_RES::AccData&>();
+
+    if (accValues.arrayAcc.size() <= 0)
+    {
+        // No value, do nothing...
+        return;
+    }
+
+    const whiteboard::Array<whiteboard::FloatVector3D>& arrayData = accValues.arrayAcc;
+    uint32_t relativeTime = accValues.timestamp;
+    if (orientate) 
+    {
+        whiteboard::FloatVector3D accValue = arrayData[0];
+        // Using startHeadingY as storage for acceleration info.
+        startHeadingY.i = startHeadingY.i*3/4 + accValue.mX/4;
+        startHeadingY.j = startHeadingY.j*3/4 + accValue.mY/4;
+        startHeadingY.k = startHeadingY.k*3/4 + accValue.mZ/4;
+        // Rest will be done once the calibration is done at onTimer();
+        return;
+    }
+    for (size_t i = 0; i < arrayData.size(); i++)
+    {
+        whiteboard::FloatVector3D accValue = arrayData[i];
+        float x = (accValue.mX*accValue.mX > minAccSquared) ? accValue.mX : 0.0;
+        float y = (accValue.mY*accValue.mY > minAccSquared) ? accValue.mY : 0.0;
+        float z = (accValue.mZ*accValue.mZ > minAccSquared) ? accValue.mZ : 0.0;
+        if (isTurning || !filterWithGyro)
+        {
+            gyrospinner::Vector headingX = gyrospinner::QuickMafs::rotate(startHeadingX, totalRotation);
+            gyrospinner::Vector headingY = gyrospinner::QuickMafs::rotate(startHeadingY, totalRotation);
+            gyrospinner::Vector zVec = crossProduct(headingX, headingY);
+            zSpeed = startHeadingX.k*x + startHeadingY.k*y + zVec.k*z + g;
+            xSpeed = startHeadingX.i*x + startHeadingY.i*y + zVec.i*z;
+            ySpeed = startHeadingX.j*x + startHeadingY.j*y + zVec.j*z;
+        } else if (filterWithGyro)
+        {
+            zSpeed = 0.0;
+            xSpeed = 0.0;
+            ySpeed = 0.0;
+        }
+        position[0] += xSpeed/accSampleRate;
+        position[1] += ySpeed/accSampleRate;
+        position[2] += zSpeed/accSampleRate;
+        if (imuSubscription) {
+            if (upCounter >= accSampleRate/4) {
+                DEBUGLOG("D/SENSOR/onAccData updating position resource");
+                upCounter = 0;
+                WB_RES::PositionValue res;
+                res.x = position[0];
+                res.y = position[1];
+                res.z = position[2];
+                updateResource(WB_RES::LOCAL::FYSSA_IMU(),
+                        ResponseOptions::Empty, res);
+            }
+            else upCounter++;
+        }
     }
 }
 
 void GyroService::onTimer(whiteboard::TimerId timerId)
 {
-    if (timerId != mTimer)
+    if (timerId == mTimer)
     {
-        return;
-    }
-    if (!isRunning) shutdownCounter = shutdownCounter + LED_BLINKING_PERIOD;
-    else shutdownCounter = 0;
-    if (shutdownCounter >= AVAILABILITY_TIME) 
-    {
-            // Prepare AFE to wake-up mode
-        asyncPut(WB_RES::LOCAL::COMPONENT_MAX3000X_WAKEUP::ID,
-                 AsyncRequestOptions(NULL, 0, true), (uint8_t)1);
+                if (!isRunning) shutdownCounter = shutdownCounter + LED_BLINKING_PERIOD;
+        else shutdownCounter = 0;
+        if (shutdownCounter >= AVAILABILITY_TIME) 
+        {
+                // Prepare AFE to wake-up mode
+            asyncPut(WB_RES::LOCAL::COMPONENT_MAX3000X_WAKEUP::ID,
+                     AsyncRequestOptions(NULL, 0, true), (uint8_t)1);
 
 
-        // Make PUT request to enter power off mode
-        asyncPut(WB_RES::LOCAL::SYSTEM_MODE::ID,
-                 AsyncRequestOptions(NULL, 0, true), // Force async
-                 (uint8_t)1U);                       // WB_RES::SystemMode::FULLPOWEROFF
+            // Make PUT request to enter power off mode
+            asyncPut(WB_RES::LOCAL::SYSTEM_MODE::ID,
+                     AsyncRequestOptions(NULL, 0, true), // Force async
+                     (uint8_t)1U);                       // WB_RES::SystemMode::FULLPOWEROFF
+        }
+        else
+        {
+        // Make PUT request to trigger led blink
+        asyncPut(WB_RES::LOCAL::UI_IND_VISUAL::ID, AsyncRequestOptions::Empty,(uint16_t) 2);
+        }
+
     }
-    else
-    {
-    // Make PUT request to trigger led blink
-    asyncPut(WB_RES::LOCAL::UI_IND_VISUAL::ID, AsyncRequestOptions::Empty,(uint16_t) 2);
+    else if (timerId == mCalibTimer) {
+        float x = startHeadingY.i;
+        float y = startHeadingY.j;
+        float z = startHeadingY.k;
+        isCalibrating = false;
+        orientate = false;
+        g = x*x + y*y + z*z;
+        if (x*x > 0.001)
+        {
+            startHeadingX.j = 1.0;
+            startHeadingX.k = 0.0;
+            startHeadingX.i = -y*startHeadingX.j/x;
+            gyrospinner::QuickMafs::normalize(&startHeadingX);
+
+        } else
+        {
+            startHeadingX.i = 0.0;
+            startHeadingX.k = 1.0;
+            startHeadingX.j = -z*startHeadingX.k/y;
+            gyrospinner::QuickMafs::normalize(&startHeadingX);
+        }
+
+        startHeadingY = crossProduct(startHeadingX, {x, y, z});
+        gyrospinner::QuickMafs::normalize(&startHeadingY);
     }
 
 
@@ -385,16 +552,21 @@ void GyroService::onTimer(whiteboard::TimerId timerId)
 
 void GyroService::reset()
 {
-    currentHeadingX = {1.0, 0.0, 0.0};
-    currentHeadingY = {0.0, 1.0, 0.0};
+    startHeadingX = {1.0, 0.0, 0.0};
+    startHeadingY = {0.0, 1.0, 0.0};
     totalRotation = {1.0, {0.0, 0.0, 0.0}};
     shutdownCounter = 0;
-    
+    xSpeed = 0;
+    ySpeed = 0;
+    zSpeed = 0;
+    for (int i = 0; i < 3; i++) position[i] = 0.0;
 }
 
-void GyroService::calibrateGyro()
+void GyroService::calibrate()
 {
-    if (isRunning) isCalibrating = true;
+    isCalibrating = true;
+    orientate = true;
+    mCalibTimer =  whiteboard::ResourceProvider::startTimer((size_t) CALIBRATION_TIME, false);
 }
 
 void GyroService::onRemoteWhiteboardDisconnected(whiteboard::WhiteboardId whiteboardId)
@@ -409,8 +581,8 @@ void GyroService::onClientUnavailable(whiteboard::ClientId clientId)
     stopRunning();
 }
 
-gyrospinner::Vector GyroService::currentHeadingZ() 
+gyrospinner::Vector GyroService::crossProduct(gyrospinner::Vector a, gyrospinner::Vector b)
 {
-return {currentHeadingX.j*currentHeadingY.k-currentHeadingX.j*currentHeadingY.k, currentHeadingX.k*currentHeadingY.i - currentHeadingY.k * currentHeadingX.i, currentHeadingX.i*currentHeadingY.j - currentHeadingX.j*currentHeadingY.i};
+return {a.j*b.k-a.k*b.j, a.k*b.i - b.k * a.i, a.i*b.j - a.j*b.i};
 }
 

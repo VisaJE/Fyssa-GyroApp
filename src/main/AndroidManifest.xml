@@ -69,10 +69,13 @@
         android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name="com.movesense.mds.fyssagyro.fyssa_app.FyssaMainActivity"
+            android:name="com.movesense.mds.fyssagyro.fyssa_app.FyssaGyroMainActivity"
             android:screenOrientation="portrait">
         </activity>
-
+        <activity
+            android:name="com.movesense.mds.fyssagyro.fyssa_app.FyssaImuMainActivity"
+            android:screenOrientation="portrait">
+        </activity>
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}"
