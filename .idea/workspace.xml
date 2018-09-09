@@ -13,50 +13,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="860b8be4-b6d7-41a0-ba7a-a355e7286cfb" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/com/movesense/mds/fyssagyro/app_using_mds_api/model/FyssaPositionData.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/java/com/movesense/mds/fyssagyro/fyssa_app/FyssaImuMainActivity.java" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/main/res/layout/activity_fyssa_imu_main.xml" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/.ninja_deps" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/.ninja_deps" />
       <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/.ninja_log" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/.ninja_log" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeCache.txt" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeCache.txt" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/3.11.2/CMakeDetermineCompilerABI_C.bin" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/3.11.2/CMakeDetermineCompilerABI_C.bin" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/3.11.2/CMakeDetermineCompilerABI_CXX.bin" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/3.11.2/CMakeDetermineCompilerABI_CXX.bin" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/3.11.2/CMakeSystem.cmake" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/3.11.2/CMakeSystem.cmake" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/Movesense.dir/App.cpp.obj" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/Movesense.dir/App.cpp.obj" />
       <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/Movesense.dir/GyroService.cpp.obj" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/Movesense.dir/GyroService.cpp.obj" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/Movesense.dir/QuickMafs.cpp.obj" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/Movesense.dir/QuickMafs.cpp.obj" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/Movesense.dir/app-metadata/metadata.cpp.obj" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/Movesense.dir/app-metadata/metadata.cpp.obj" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/Movesense.dir/generated/app-resources/resources.cpp.obj" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/Movesense.dir/generated/app-resources/resources.cpp.obj" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/Movesense.dir/generated/sbem-code/sbem_definitions.cpp.obj" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/Movesense.dir/generated/sbem-code/sbem_definitions.cpp.obj" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/TargetDirectories.txt" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/TargetDirectories.txt" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/feature_tests.bin" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/CMakeFiles/feature_tests.bin" />
       <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/Movesense" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/Movesense" />
       <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/Movesense.hex" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/Movesense.hex" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/app-metadata/metadata.cpp" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/app-metadata/metadata.cpp" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/app-resources.wbo" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/app-resources.wbo" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/build.ninja" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/build.ninja" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/cmake_install.cmake" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/cmake_install.cmake" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/generated/app-resources/resources.cpp" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/generated/app-resources/resources.cpp" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/generated/app-resources/resources.h" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/generated/app-resources/resources.h" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/generated/sbem-code/sbem_definitions.cpp" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/generated/sbem-code/sbem_definitions.cpp" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/generated/sbem-code/sbem_definitions.h" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/generated/sbem-code/sbem_definitions.h" />
       <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/movesense_dfu.zip" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/movesense_dfu.zip" />
       <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/movesense_dfu_w_bootloader.zip" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/movesense_dfu_w_bootloader.zip" />
-      <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/rules.ninja" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/rules.ninja" />
       <change beforePath="$PROJECT_DIR$/sensor/buildfolderGyro/target.map" afterPath="$PROJECT_DIR$/sensor/buildfolderGyro/target.map" />
-      <change beforePath="$PROJECT_DIR$/sensor/gyro_app/App.cpp" afterPath="$PROJECT_DIR$/sensor/gyro_app/App.cpp" />
       <change beforePath="$PROJECT_DIR$/sensor/gyro_app/GyroService.cpp" afterPath="$PROJECT_DIR$/sensor/gyro_app/GyroService.cpp" />
-      <change beforePath="$PROJECT_DIR$/sensor/gyro_app/GyroService.h" afterPath="$PROJECT_DIR$/sensor/gyro_app/GyroService.h" />
-      <change beforePath="$PROJECT_DIR$/sensor/gyro_app/wbresources/Fyssagyro.yaml" afterPath="$PROJECT_DIR$/sensor/gyro_app/wbresources/Fyssagyro.yaml" />
-      <change beforePath="$PROJECT_DIR$/src/main/AndroidManifest.xml" afterPath="$PROJECT_DIR$/src/main/AndroidManifest.xml" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/movesense/mds/fyssagyro/app_using_mds_api/SelectTestActivity.java" afterPath="$PROJECT_DIR$/src/main/java/com/movesense/mds/fyssagyro/app_using_mds_api/SelectTestActivity.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/movesense/mds/fyssagyro/fyssa_app/FyssaInfoActivity.java" afterPath="$PROJECT_DIR$/src/main/java/com/movesense/mds/fyssagyro/fyssa_app/FyssaInfoActivity.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/movesense/mds/fyssagyro/fyssa_app/FyssaMainActivity.java" afterPath="$PROJECT_DIR$/src/main/java/com/movesense/mds/fyssagyro/fyssa_app/FyssaGyroMainActivity.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_fyssa_info.xml" afterPath="$PROJECT_DIR$/src/main/res/layout/activity_fyssa_info.xml" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_fyssa_main.xml" afterPath="$PROJECT_DIR$/src/main/res/layout/activity_fyssa_gyro_main.xml" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_select_test.xml" afterPath="$PROJECT_DIR$/src/main/res/layout/activity_select_test.xml" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/menu/menu.xml" afterPath="$PROJECT_DIR$/src/main/res/menu/menu.xml" />
       <change beforePath="$PROJECT_DIR$/src/main/res/raw/movesense_dfu.zip" afterPath="$PROJECT_DIR$/src/main/res/raw/movesense_dfu.zip" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -2643,7 +2609,7 @@
     <property name="device.picker.selection" value="LGH850cac05833" />
     <property name="android.project.structure.last.selected" value="ANDROIDGYRO" />
     <property name="android.project.structure.proportion" value="0.15" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1536500440474" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1536502437633" />
     <property name="settings.editor.selected.configurable" value="instant.run" />
   </component>
   <component name="RecentsManager">
