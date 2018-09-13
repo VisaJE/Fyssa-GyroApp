@@ -4,7 +4,7 @@ swagger: '2.0'
 
 # Document metadata
 info:
-  version: "0.1.1"
+  version: "0.1.1.IMU"
   title: Gyroscope tests
   description: |
     This file defines API for Fyysikkokilta handwaving measurement service.

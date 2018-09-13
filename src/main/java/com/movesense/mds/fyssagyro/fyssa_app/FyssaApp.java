@@ -12,6 +12,8 @@ import com.movesense.mds.fyssagyro.tool.MemoryTools;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * Application for making all initializations
@@ -19,6 +21,9 @@ import java.io.InputStream;
 public class FyssaApp extends Application {
 
     private MemoryTools memoryTools;
+    public static String deviceVersion = "0.1.1.IMU";
+
+    public LinkedList<Vector3d<Float>> trajectory;
 
     @Override
     public void onCreate() {
@@ -34,7 +39,7 @@ public class FyssaApp extends Application {
         MdsRx.Instance.initialize(this);
 
         memoryTools = new MemoryTools(this);
-
+        trajectory = new LinkedList<>();
     }
 
     @Override

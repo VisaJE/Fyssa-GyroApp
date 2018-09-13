@@ -53,7 +53,7 @@ GyroService::GyroService()
       LaunchableModule(LAUNCHABLE_NAME, sExecutionContextId),
       isRunning(false),
       sampleRate(208),
-      minAngleSquared(0.00001),
+      minAngleSquared(0.001*0.001),
       accSampleRate(208),
       minAccSquared(0.001)
 {
@@ -124,7 +124,8 @@ void GyroService::onGetRequest(const whiteboard::Request& request,
         startHeadingY = gyrospinner::QuickMafs::rotate({0.0, 1.0, 0.0}, totalRotation);
         shutdownCounter = 0;
         reset();
-        if (!isRunning) calibrate();
+        if (isRunning) calibrate();
+        asyncPut(WB_RES::LOCAL::UI_IND_VISUAL::ID, AsyncRequestOptions::Empty,(uint16_t) 1);
         WB_RES::HeadingValue res;
         res.frontx = startHeadingX.i;
         res.fronty = startHeadingX.j;
@@ -146,12 +147,13 @@ void GyroService::onGetRequest(const whiteboard::Request& request,
             returnResult(request, whiteboard::HTTP_CODE_SERVICE_UNAVAILABLE);
             break;
         }
+        WB_RES::PositionValue res;
+        res.x = xSpeed;
+        res.y = ySpeed;
+        res.z = zSpeed;
         reset();
         calibrate();
-        WB_RES::PositionValue res;
-        res.x = position[0];
-        res.y = position[1];
-        res.z = position[2];
+        asyncPut(WB_RES::LOCAL::UI_IND_VISUAL::ID, AsyncRequestOptions::Empty,(uint16_t) 1);
         returnResult(request, whiteboard::HTTP_CODE_OK,
             ResponseOptions::Empty, res);
         break;
@@ -244,19 +246,13 @@ void GyroService::onSubscribe(const whiteboard::Request& request,
     switch (request.getResourceConstId())
     {
     case WB_RES::LOCAL::FYSSA_GYRO::ID:
-    imuSubscription = true;
+    imuSubscription = false;
+    startSequence(request);
+    break;
     case WB_RES::LOCAL::FYSSA_IMU::ID:
-    {
-        imuSubscription = !imuSubscription;
-        DEBUGLOG("D/SENSOR/Subscription for orientation");
-        if(startRunning(mRemoteRequestId) == whiteboard::HTTP_CODE_OK) {
-
-            return returnResult(request, whiteboard::HTTP_CODE_OK);
-        }
-        else returnResult(request, whiteboard::HTTP_CODE_SERVICE_UNAVAILABLE);
-       
-        break;
-    }
+    imuSubscription = true;
+    startSequence(request);
+    break;
     default:
         DEBUGLOG("D/SENSOR/Shouldn't happen!");
         return returnResult(request, whiteboard::HTTP_CODE_BAD_REQUEST);
@@ -265,6 +261,15 @@ void GyroService::onSubscribe(const whiteboard::Request& request,
     }
 }
 
+void GyroService::startSequence(const whiteboard::Request& request)
+{
+        DEBUGLOG("D/SENSOR/Subscription for orientation");
+        if(startRunning(mRemoteRequestId) == whiteboard::HTTP_CODE_OK) {
+
+            return returnResult(request, whiteboard::HTTP_CODE_OK);
+        }
+        else returnResult(request, whiteboard::HTTP_CODE_SERVICE_UNAVAILABLE);
+}
 
 void GyroService::onUnsubscribe(const whiteboard::Request& request,
                                        const whiteboard::ParameterList& parameters)
@@ -274,6 +279,7 @@ void GyroService::onUnsubscribe(const whiteboard::Request& request,
     switch (request.getResourceConstId())
     {
     case WB_RES::LOCAL::FYSSA_GYRO::ID:
+    case WB_RES::LOCAL::FYSSA_IMU::ID:
         returnResult(request, wb::HTTP_CODE_OK);
         stopRunning();
         break;
@@ -393,7 +399,7 @@ void GyroService::onGyroData(whiteboard::ResourceId resourceId, const whiteboard
             zeroAngularY = zeroAngularY*3/4 + gyroValue.mY/4;
             zeroAngularZ = zeroAngularZ*3/4 + gyroValue.mZ/4;
             }
-    return;
+        return;
     }
 
     for (size_t i = 0; i < arrayData.size(); i++)
@@ -406,14 +412,14 @@ void GyroService::onGyroData(whiteboard::ResourceId resourceId, const whiteboard
         float angle = gyrospinner::QuickMafs::normalize(&axis);
         if (angle*angle > minAngleSquared) {
             isTurning = true;
-            totalRotation = gyrospinner::QuickMafs::product(gyrospinner::QuickMafs::constructRotator(axis, angle), totalRotation); 
+            totalRotation = gyrospinner::QuickMafs::product(totalRotation, gyrospinner::QuickMafs::constructRotator(axis, angle)); 
         } else isTurning = false;
 
         if (!imuSubscription)
         {
             if (upCounter >= (int)sampleRate/4) 
             {
-                DEBUGLOG("D/SENSOR/OnNotify():angle x 1000: %u", (uint32_t)(angle*1000));
+                //DEBUGLOG("D/SENSOR/OnNotify():angle x 1000: %u", (uint32_t)(angle*1000));
                 gyrospinner::Vector headingX = gyrospinner::QuickMafs::rotate(startHeadingX, totalRotation);
                 gyrospinner::Vector headingY = gyrospinner::QuickMafs::rotate(startHeadingY, totalRotation);
                 gyrospinner::QuickMafs::normalize(&headingX);
@@ -485,7 +491,7 @@ void GyroService::onAccData(whiteboard::ResourceId resourceId, const whiteboard:
         position[2] += zSpeed/accSampleRate;
         if (imuSubscription) {
             if (upCounter >= accSampleRate/4) {
-                DEBUGLOG("D/SENSOR/onAccData updating position resource");
+                DEBUGLOG("D/SENSOR/onAccData updating position resource. Current speed %u %u %u", (uint32_t)abs((int) xSpeed), (uint32_t)abs((int) ySpeed), (uint32_t)abs((int) zSpeed));
                 upCounter = 0;
                 WB_RES::PositionValue res;
                 res.x = position[0];
@@ -530,7 +536,8 @@ void GyroService::onTimer(whiteboard::TimerId timerId)
         float z = startHeadingY.k;
         isCalibrating = false;
         orientate = false;
-        g = x*x + y*y + z*z;
+        g = sqrt(x*x + y*y + z*z);
+        asyncPut(WB_RES::LOCAL::UI_IND_VISUAL::ID, AsyncRequestOptions::Empty,(uint16_t) 0);
         if (x*x > 0.001)
         {
             startHeadingX.j = 1.0;
@@ -545,8 +552,9 @@ void GyroService::onTimer(whiteboard::TimerId timerId)
             startHeadingX.j = -z*startHeadingX.k/y;
             gyrospinner::QuickMafs::normalize(&startHeadingX);
         }
-        DEBUGLOG("D/SENSOR/ Imu calibrated with acc data %u, %u, %u. Gravity g: %u", (uint32_t)abs((int)x*100), (uint32_t)abs((int)y*100),
-            (uint32_t)abs((int)z*100), (uint32_t)abs((int)g*100));
+        DEBUGLOG("D/SENSOR/ Imu calibrated with acc data %u, %u, %u. Gravity g: %u", (uint32_t)abs((int)(x*100)), (uint32_t)abs((int)(y*100)),
+            (uint32_t)abs((int)(z*100)), (uint32_t)abs((int)(g*100)));
+        DEBUGLOG("D/SENSOR/Signs of the gravity vector: %u, %u, %u", (uint32_t)(int)(x >= 0), (uint32_t)(int)(y >= 0), (uint32_t)(int)(z >= 0));
         startHeadingY = crossProduct(startHeadingX, {x, y, z});
         gyrospinner::QuickMafs::normalize(&startHeadingY);
     }

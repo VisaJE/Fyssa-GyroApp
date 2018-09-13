@@ -1,6 +1,7 @@
 package com.movesense.mds.fyssagyro.fyssa_app;
 
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -106,17 +107,19 @@ public class FyssaGyroMainActivity extends AppCompatActivity {
                             Log.d(TAG, "Version: " + infoAppResponse.getContent().getVersion());
                             Log.d(TAG, "Company: " + infoAppResponse.getContent().getCompany());
                         }
-                        AlertDialog.Builder builder = new AlertDialog.Builder(FyssaGyroMainActivity.this);
-                        /*builder.setMessage("Update?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                switch (which){
-                                    case DialogInterface.BUTTON_POSITIVE:
-                                        updateSensorSoftware();
-                                        break;
+                        if (!infoAppResponse.getContent().getVersion().equals(FyssaApp.deviceVersion)) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(FyssaGyroMainActivity.this);
+                            builder.setMessage("Update?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which) {
+                                        case DialogInterface.BUTTON_POSITIVE:
+                                            updateSensorSoftware();
+                                            break;
+                                    }
                                 }
-                            }
-                        }).show();*/
+                            }).show();
+                        }
                     }
 
                     @Override

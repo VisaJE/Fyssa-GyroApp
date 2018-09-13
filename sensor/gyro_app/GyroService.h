@@ -56,6 +56,7 @@ private:
     *	@param request Request information
     *	@param parameters List of parameters
     */
+    void startSequence(const whiteboard::Request& request);
     virtual void onSubscribe(const whiteboard::Request& request,
                              const whiteboard::ParameterList& parameters) OVERRIDE;
 

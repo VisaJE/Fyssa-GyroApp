@@ -102,4 +102,8 @@
     <string name="minimum_angle_input">Angle treshold</string>
     <string name="sample_rate_input">Sample rate</string>
     <string name="set_config">Apply config</string>
+    <string name="filter_switch">Gyroscopic filter</string>
+    <string name="acc_threshold">"Min acceleration"</string>
+    <string name="plot_button">Plot</string>
+    <string name="min_acc">Min acc</string>
 </resources>

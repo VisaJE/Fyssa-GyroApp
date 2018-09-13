@@ -1,6 +1,7 @@
 package com.movesense.mds.fyssagyro.fyssa_app;
 
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -28,18 +29,22 @@ import com.movesense.mds.fyssagyro.R;
 import com.movesense.mds.fyssagyro.app_using_mds_api.FyssaSensorUpdateActivity;
 import com.movesense.mds.fyssagyro.app_using_mds_api.SelectTestActivity;
 import com.movesense.mds.fyssagyro.app_using_mds_api.model.DebugResponse;
-import com.movesense.mds.fyssagyro.app_using_mds_api.model.FyssaGyroData;
 import com.movesense.mds.fyssagyro.app_using_mds_api.model.FyssaGyroGetData;
 import com.movesense.mds.fyssagyro.app_using_mds_api.model.FyssaPositionData;
 import com.movesense.mds.fyssagyro.app_using_mds_api.model.InfoAppResponse;
 import com.movesense.mds.fyssagyro.app_using_mds_api.model.MovesenseConnectedDevices;
 import com.movesense.mds.fyssagyro.tool.MemoryTools;
 
+import java.util.Queue;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import rx.subscriptions.CompositeSubscription;
+
+
+
 
 public class FyssaImuMainActivity extends AppCompatActivity {
 
@@ -50,7 +55,8 @@ public class FyssaImuMainActivity extends AppCompatActivity {
     @BindView(R.id.nimi_tv) TextView nimiTv;
     @BindView(R.id.position_tv) TextView posView;
     @BindView(R.id.sample_rate_tv) EditText setSampleRate;
-    @BindView(R.id.angle_treshold_tv) EditText setAngleTreshold;
+    @BindView(R.id.acc_treshold_tv) EditText setAccTreshold;
+    @BindView(R.id.filter_switch) Switch filterSwitch;
 
     private final String TAG = FyssaImuMainActivity.class.getSimpleName();
 
@@ -61,11 +67,14 @@ public class FyssaImuMainActivity extends AppCompatActivity {
     private final String IMU_PATH_GET = "/Fyssa/Imu";
     private final String INFO_PATH_GET = "/Meas/Acc/Info";
     private static final String GYRO_CONFIG = "/Fyssa/Gyro/FyssaGyroConfig";
+    private static final String IMU_CONFIG = "/Fyssa/Imu/FyssaAccConfig";
 
     public static final String URI_EVENTLISTENER = "suunto://MDS/EventListener";
 
     private MdsSubscription mdsSubscription;
     private MdsSubscription mImuSubscription;
+
+
 
 
     @Override
@@ -87,6 +96,7 @@ public class FyssaImuMainActivity extends AppCompatActivity {
         } else {
             nimiTv.setText("Heiluttelija: " + app.getMemoryTools().getName());
         }
+        filterSwitch.setChecked(true);
         subscriptions = new CompositeSubscription();
     }
 
@@ -106,17 +116,19 @@ public class FyssaImuMainActivity extends AppCompatActivity {
                             Log.d(TAG, "Version: " + infoAppResponse.getContent().getVersion());
                             Log.d(TAG, "Company: " + infoAppResponse.getContent().getCompany());
                         }
-                        AlertDialog.Builder builder = new AlertDialog.Builder(FyssaImuMainActivity.this);
-                        /*builder.setMessage("Update?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                switch (which){
-                                    case DialogInterface.BUTTON_POSITIVE:
-                                        updateSensorSoftware();
-                                        break;
+                        if (!infoAppResponse.getContent().getVersion().equals(FyssaApp.deviceVersion)) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(FyssaImuMainActivity.this);
+                            builder.setMessage("Update?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which) {
+                                        case DialogInterface.BUTTON_POSITIVE:
+                                            updateSensorSoftware();
+                                            break;
+                                    }
                                 }
-                            }
-                        }).show();*/
+                            }).show();
+                        }
                     }
 
                     @Override
@@ -157,7 +169,7 @@ public class FyssaImuMainActivity extends AppCompatActivity {
         checkSensorSoftware();
     }
 
-    @OnClick({R.id.get_info_button, R.id.start_service_button, R.id.stop_service_button, R.id.subscription_switch, R.id.get_heading_button, R.id.apply_config_button})
+    @OnClick({R.id.get_info_button, R.id.start_service_button, R.id.stop_service_button, R.id.subscription_switch, R.id.get_heading_button, R.id.apply_config_button, R.id.plot_button})
     public void onViewClicked(View view) {
         switch(view.getId()) {
             case R.id.get_info_button:
@@ -175,11 +187,14 @@ public class FyssaImuMainActivity extends AppCompatActivity {
             case R.id.apply_config_button:
                 try {
                     int sr = Integer.parseInt(setSampleRate.getText().toString());
-                    float ma = Float.parseFloat(setAngleTreshold.getText().toString());
+                    float ma = Float.parseFloat(setAccTreshold.getText().toString());
                     Log.d(TAG, "Setting configuration:" + sr + ", " + ma);
-                    configureGyro(sr, ma);
+                    configureImu(sr, ma, filterSwitch.isChecked());
                 } catch (Exception e) {}
-
+                break;
+            case R.id.plot_button:
+                startActivity(new Intent(FyssaImuMainActivity.this, SimpleXYPlotActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
     }
     @OnCheckedChanged({R.id.subscription_switch})
@@ -252,13 +267,13 @@ public class FyssaImuMainActivity extends AppCompatActivity {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 
-    private void configureGyro(int sampleRate, float minAngle) {
+    private void configureImu(int sampleRate, float minAngle, boolean filter) {
         // Access the config
         String configUri = MdsRx.SCHEME_PREFIX +
-                MovesenseConnectedDevices.getConnectedDevice(0).getSerial() + GYRO_CONFIG;
+                MovesenseConnectedDevices.getConnectedDevice(0).getSerial() + IMU_CONFIG;
 
                 // Create the config object
-        String jsonConfig = "{\"fyssaGyroConfig\":{\"rate\":" + sampleRate + ",\"threshold\":" + minAngle + "}}";
+        String jsonConfig = "{\"fyssaAccConfig\":{\"rate\":" + sampleRate + ",\"threshold\":" + minAngle + ",\"filter\":" + Boolean.toString(filter) + "}}";
 
         Log.d(TAG, "Config request: " + jsonConfig);
         Mds.builder().build(this).put(configUri, jsonConfig, new MdsResponseListener() {
@@ -322,6 +337,7 @@ public class FyssaImuMainActivity extends AppCompatActivity {
                         try {
                             FyssaPositionData data = new Gson().fromJson(s, FyssaPositionData.class);
                             showCoordinates(data);
+                            app.trajectory.add(new Vector3d(data.getContent().getX(), data.getContent().getY(), data.getContent().getZ()) );
                         } catch (Exception e){ Log.e(TAG, "Wrong value!", e);}
 
                     }
@@ -340,7 +356,7 @@ public class FyssaImuMainActivity extends AppCompatActivity {
 
     void showCoordinates(FyssaPositionData data) {
         FyssaPositionData.Body dataC = data.getContent();
-        String text1 = "Front vector\nx: " + dataC.getX() + "\ny: " + dataC.getY() + "\nz: " + dataC.getZ();
+        String text1 = "Coords:\nx: " + dataC.getX() + "\ny: " + dataC.getY() + "\nz: " + dataC.getZ();
         posView.setText(text1);
 
     }

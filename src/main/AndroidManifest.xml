@@ -76,6 +76,10 @@
             android:name="com.movesense.mds.fyssagyro.fyssa_app.FyssaImuMainActivity"
             android:screenOrientation="portrait">
         </activity>
+        <activity
+            android:name="com.movesense.mds.fyssagyro.fyssa_app.SimpleXYPlotActivity"
+            android:screenOrientation="portrait">
+        </activity>
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}"
@@ -94,6 +98,7 @@
             android:name="com.movesense.mds.fyssagyro.app_using_mds_api.FyssaSensorUpdateActivity"
             android:screenOrientation="portrait">
         </activity>
+
 
 
 
