@@ -119,9 +119,8 @@ void GyroService::onGetRequest(const whiteboard::Request& request,
     {
     case WB_RES::LOCAL::FYSSA_GYRO::ID:
     {
-        DEBUGLOG("D/SENSOR/Rotating and resetting.");
-        startHeadingX = gyrospinner::QuickMafs::rotate({1.0, 0.0, 0.0}, totalRotation);
-        startHeadingY = gyrospinner::QuickMafs::rotate({0.0, 1.0, 0.0}, totalRotation);
+        DEBUGLOG("D/SENSOR/Resetting.");
+
         shutdownCounter = 0;
         reset();
         if (isRunning) calibrate();
@@ -152,7 +151,7 @@ void GyroService::onGetRequest(const whiteboard::Request& request,
         res.y = ySpeed;
         res.z = zSpeed;
         reset();
-        calibrate();
+        if (isRunning) calibrate();
         asyncPut(WB_RES::LOCAL::UI_IND_VISUAL::ID, AsyncRequestOptions::Empty,(uint16_t) 1);
         returnResult(request, whiteboard::HTTP_CODE_OK,
             ResponseOptions::Empty, res);
@@ -412,7 +411,7 @@ void GyroService::onGyroData(whiteboard::ResourceId resourceId, const whiteboard
         float angle = gyrospinner::QuickMafs::normalize(&axis);
         if (angle*angle > minAngleSquared) {
             isTurning = true;
-            totalRotation = gyrospinner::QuickMafs::product(totalRotation, gyrospinner::QuickMafs::constructRotator(axis, angle)); 
+            totalRotation = gyrospinner::QuickMafs::product(gyrospinner::QuickMafs::constructRotator(axis, -angle), totalRotation); 
         } else isTurning = false;
 
         if (!imuSubscription)
@@ -421,17 +420,17 @@ void GyroService::onGyroData(whiteboard::ResourceId resourceId, const whiteboard
             {
                 //DEBUGLOG("D/SENSOR/OnNotify():angle x 1000: %u", (uint32_t)(angle*1000));
                 gyrospinner::Vector headingX = gyrospinner::QuickMafs::rotate(startHeadingX, totalRotation);
-                gyrospinner::Vector headingY = gyrospinner::QuickMafs::rotate(startHeadingY, totalRotation);
+                gyrospinner::Vector headingZ = gyrospinner::QuickMafs::rotate(startHeadingZ, totalRotation);
                 gyrospinner::QuickMafs::normalize(&headingX);
-                gyrospinner::QuickMafs::normalize(&headingY);
+                gyrospinner::QuickMafs::normalize(&headingZ);
                 upCounter = 0;
                 WB_RES::HeadingValue res;
                 res.frontx = headingX.i;
                 res.fronty = headingX.j;
                 res.frontz = headingX.k;
-                res.topx = headingY.i;
-                res.topy = headingY.j;
-                res.topz = headingY.k;
+                res.topx = headingZ.i;
+                res.topy = headingZ.j;
+                res.topz = headingZ.k;
                 updateResource(WB_RES::LOCAL::FYSSA_GYRO(),
                     ResponseOptions::Empty, res);
             } else ++upCounter;
@@ -456,29 +455,28 @@ void GyroService::onAccData(whiteboard::ResourceId resourceId, const whiteboard:
     if (orientate) 
     {
         whiteboard::FloatVector3D accValue = arrayData[0];
-        // Using startHeadingY as storage for acceleration info.
-        startHeadingY.i = startHeadingY.i*3/4 + accValue.mX/4;
-        startHeadingY.j = startHeadingY.j*3/4 + accValue.mY/4;
-        startHeadingY.k = startHeadingY.k*3/4 + accValue.mZ/4;
+
+        startHeadingZ.i = startHeadingZ.i*3/4 + accValue.mX/4;
+        startHeadingZ.j = startHeadingZ.j*3/4 + accValue.mY/4;
+        startHeadingZ.k = startHeadingZ.k*3/4 + accValue.mZ/4;
         // Rest will be done once the calibration is done at onTimer();
         return;
     }
     for (size_t i = 0; i < arrayData.size(); i++)
     {
         whiteboard::FloatVector3D accValue = arrayData[i];
-        float x = accValue.mX;
-        float y = accValue.mY;
-        float z = accValue.mZ;
+        gyrospinner::Vector acc = {accValue.mX, accValue.mY, accValue.mZ};
         if (isTurning || !filterWithGyro)
         {
             gyrospinner::Vector headingX = gyrospinner::QuickMafs::rotate(startHeadingX, totalRotation);
-            gyrospinner::Vector headingY = gyrospinner::QuickMafs::rotate(startHeadingY, totalRotation);
-            gyrospinner::Vector zVec = crossProduct(headingX, headingY);
-            float zS = startHeadingX.k*x + startHeadingY.k*y + zVec.k*z + g;
+            gyrospinner::Vector headingZ = gyrospinner::QuickMafs::rotate(startHeadingZ, totalRotation);
+            gyrospinner::Vector yVec = crossProduct(headingZ, headingX);
+
+            float zS = dotProduct(acc, headingZ) - g;
             zSpeed += (zS*zS > minAccSquared) ? zS / accSampleRate : 0.0;
-            float xS = startHeadingX.i*x + startHeadingY.i*y + zVec.i*z;
+            float xS = dotProduct(acc, headingX);
             xSpeed += xS*xS > minAccSquared ? xS / accSampleRate : 0.0;
-            float yS = startHeadingX.j*x + startHeadingY.j*y + zVec.j*z;
+            float yS = dotProduct(acc, yVec);
             ySpeed += yS*yS > minAccSquared ? yS / accSampleRate : 0.0;
         } else if (filterWithGyro)
         {
@@ -531,9 +529,11 @@ void GyroService::onTimer(whiteboard::TimerId timerId)
 
     }
     else if (timerId == mCalibTimer) {
-        float x = startHeadingY.i;
-        float y = startHeadingY.j;
-        float z = startHeadingY.k;
+        
+        float x = startHeadingZ.i;
+        float y = startHeadingZ.j;
+        float z = startHeadingZ.k;
+        gyrospinner::QuickMafs::normalize(&startHeadingZ);
         isCalibrating = false;
         orientate = false;
         g = sqrt(x*x + y*y + z*z);
@@ -554,9 +554,6 @@ void GyroService::onTimer(whiteboard::TimerId timerId)
         }
         DEBUGLOG("D/SENSOR/ Imu calibrated with acc data %u, %u, %u. Gravity g: %u", (uint32_t)abs((int)(x*100)), (uint32_t)abs((int)(y*100)),
             (uint32_t)abs((int)(z*100)), (uint32_t)abs((int)(g*100)));
-        DEBUGLOG("D/SENSOR/Signs of the gravity vector: %u, %u, %u", (uint32_t)(int)(x >= 0), (uint32_t)(int)(y >= 0), (uint32_t)(int)(z >= 0));
-        startHeadingY = crossProduct(startHeadingX, {x, y, z});
-        gyrospinner::QuickMafs::normalize(&startHeadingY);
     }
 
 
@@ -565,7 +562,7 @@ void GyroService::onTimer(whiteboard::TimerId timerId)
 void GyroService::reset()
 {
     startHeadingX = {1.0, 0.0, 0.0};
-    startHeadingY = {0.0, 1.0, 0.0};
+    startHeadingZ = {0.0, 0.0, 1.0};
     totalRotation = {1.0, {0.0, 0.0, 0.0}};
     shutdownCounter = 0;
     xSpeed = 0;
@@ -596,5 +593,10 @@ void GyroService::onClientUnavailable(whiteboard::ClientId clientId)
 gyrospinner::Vector GyroService::crossProduct(gyrospinner::Vector a, gyrospinner::Vector b)
 {
 return {a.j*b.k-a.k*b.j, a.k*b.i - b.k * a.i, a.i*b.j - a.j*b.i};
+}
+
+float GyroService::dotProduct(gyrospinner::Vector a, gyrospinner::Vector b)
+{
+return a.i *b.i + a.j*b.j + a.k*b.k;
 }
 
