@@ -7,11 +7,13 @@ import com.movesense.mds.fyssagyro.MdsRx;
 import com.movesense.mds.fyssagyro.R;
 import com.movesense.mds.fyssagyro.RxBle;
 import com.movesense.mds.fyssagyro.Util;
+import com.movesense.mds.fyssagyro.app_using_mds_api.model.MagneticField;
 import com.movesense.mds.fyssagyro.tool.MemoryTools;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -24,6 +26,7 @@ public class FyssaApp extends Application {
     public static String deviceVersion = "0.1.1.IMU";
 
     public LinkedList<Vector3d<Float>> trajectory;
+    public ArrayList<Float> plottable;
 
     @Override
     public void onCreate() {
@@ -40,6 +43,7 @@ public class FyssaApp extends Application {
 
         memoryTools = new MemoryTools(this);
         trajectory = new LinkedList<>();
+        plottable = new ArrayList<>();
     }
 
     @Override

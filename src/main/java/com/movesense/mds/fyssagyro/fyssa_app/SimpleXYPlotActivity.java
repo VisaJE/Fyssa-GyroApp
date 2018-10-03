@@ -3,6 +3,7 @@ package com.movesense.mds.fyssagyro.fyssa_app;
 import android.app.Activity;
 import android.graphics.*;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.androidplot.util.PixelUtils;
 import com.androidplot.xy.SimpleXYSeries;
@@ -20,8 +21,9 @@ import java.util.*;
  */
 public class SimpleXYPlotActivity extends Activity {
 
+    private String TAG = this.getClass().getSimpleName();
     private XYPlot plot;
-
+    FyssaApp app;
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -30,18 +32,21 @@ public class SimpleXYPlotActivity extends Activity {
 
         // initialize our XYPlot reference:
         plot = (XYPlot) findViewById(R.id.plot);
+        app = (FyssaApp) getApplication();
 
-        // create a couple arrays of y-values to plot:
-        final Number[] domainLabels = {1, 2, 3, 6, 7, 8, 9, 10, 13, 14};
-        Number[] series1Numbers = {1, 4, 2, 8, 4, 16, 8, 32, 16, 64};
-        Number[] series2Numbers = {5, 2, 10, 5, 20, 10, 40, 20, 80, 40};
 
+        ArrayList<Float> x = new ArrayList<>();
+        ArrayList<Float> y = new ArrayList<>();
+        for (int i = 0; i < app.plottable.size()/2; i++) {
+            x.add(app.plottable.get(i*2)*10);
+            y.add(app.plottable.get(i*2+1)*10);
+        }
+        String s = "Found processed data!";
+        for (int i = 0; i < x.size(); i++) s = s + "(" + x.get(i) + ", " + y.get(i) + ") ";
+        Log.d(TAG, s);
         // turn the above arrays into XYSeries':
         // (Y_VALS_ONLY means use the element index as the x value)
-        XYSeries series1 = new SimpleXYSeries(
-                Arrays.asList(series1Numbers), SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, "Series1");
-        XYSeries series2 = new SimpleXYSeries(
-                Arrays.asList(series2Numbers), SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, "Series2");
+        XYSeries series1 = new SimpleXYSeries(x,y, "Traj1");
 
         // create formatters to use for drawing a series using LineAndPointRenderer
         // and configure them from xml:
@@ -66,8 +71,7 @@ public class SimpleXYPlotActivity extends Activity {
 
         // add a new series' to the xyplot:
         plot.addSeries(series1, series1Format);
-        plot.addSeries(series2, series2Format);
-
+/*
         plot.getGraph().getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).setFormat(new Format() {
             @Override
             public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
@@ -78,6 +82,6 @@ public class SimpleXYPlotActivity extends Activity {
             public Object parseObject(String source, ParsePosition pos) {
                 return null;
             }
-        });
+        });*/
     }
 }

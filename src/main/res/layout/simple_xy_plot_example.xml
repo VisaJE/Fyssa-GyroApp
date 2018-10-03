@@ -9,7 +9,7 @@
         android:id="@+id/plot"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        ap:title="A Simple XY Plot"
+        ap:title="Trajectory"
         ap:rangeTitle="range"
         ap:domainTitle="domain"
         ap:lineLabels="left|bottom"

@@ -51,12 +51,15 @@ public class FyssaImuMainActivity extends AppCompatActivity {
     @BindView(R.id.fyssa_conn_infoTV) TextView connectionInfoTv;
     @BindView(R.id.get_heading_button) Button getButton;
     @BindView(R.id.subscription_switch) Switch subSwitch;
+    @BindView(R.id.plot_button) Button plotButton;
+
 
     @BindView(R.id.nimi_tv) TextView nimiTv;
     @BindView(R.id.position_tv) TextView posView;
     @BindView(R.id.sample_rate_tv) EditText setSampleRate;
     @BindView(R.id.acc_treshold_tv) EditText setAccTreshold;
     @BindView(R.id.filter_switch) Switch filterSwitch;
+
 
     private final String TAG = FyssaImuMainActivity.class.getSimpleName();
 
@@ -193,8 +196,15 @@ public class FyssaImuMainActivity extends AppCompatActivity {
                 } catch (Exception e) {}
                 break;
             case R.id.plot_button:
-                startActivity(new Intent(FyssaImuMainActivity.this, SimpleXYPlotActivity.class)
+                plotButton.setEnabled(false);
+                unSubscribeImu();
+
+                Projector p = new Projector(app.trajectory);
+                app.plottable = p.getProjection();
+                plotButton.setEnabled(true);
+                if (app.plottable.size() > 0) startActivity(new Intent(FyssaImuMainActivity.this, SimpleXYPlotActivity.class)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                else toast("No plottable data.");
         }
     }
     @OnCheckedChanged({R.id.subscription_switch})
@@ -202,7 +212,7 @@ public class FyssaImuMainActivity extends AppCompatActivity {
         if (isChecked) {
             subscribePosition();
         }
-        else unSubscribeRotation();
+        else unSubscribeImu();
     }
 
     private void getHeading() {
@@ -337,6 +347,7 @@ public class FyssaImuMainActivity extends AppCompatActivity {
                         try {
                             FyssaPositionData data = new Gson().fromJson(s, FyssaPositionData.class);
                             showCoordinates(data);
+                            while (app.trajectory.size() > 99) app.trajectory.pop();
                             app.trajectory.add(new Vector3d(data.getContent().getX(), data.getContent().getY(), data.getContent().getZ()) );
                         } catch (Exception e){ Log.e(TAG, "Wrong value!", e);}
 
@@ -349,7 +360,7 @@ public class FyssaImuMainActivity extends AppCompatActivity {
                 });
     }
 
-    private void unSubscribeRotation() {
+    private void unSubscribeImu() {
         if (mImuSubscription != null) mImuSubscription.unsubscribe();
     }
 
@@ -382,7 +393,7 @@ public class FyssaImuMainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         unsubscribeDebug();
-        unSubscribeRotation();
+        unSubscribeImu();
         super.onDestroy();
 
         subscriptions.clear();
@@ -392,7 +403,7 @@ public class FyssaImuMainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         unsubscribeDebug();
-        unSubscribeRotation();
+        unSubscribeImu();
         startActivity(new Intent(FyssaImuMainActivity.this, SelectTestActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
     }

@@ -2,8 +2,6 @@
 #include "sbem_types.h"
 #include "common/core/dbgassert.h"
 
-DECLARE_GROUP(FYSSA_GYRO_)
-DECLARE_GROUP(FYSSA_IMU_)
 DECLARE_GROUP(MEAS_ACC_SAMPLERATE_ARRAYACC_)
 DECLARE_GROUP(MEAS_ACC_SAMPLERATE_1)
 DECLARE_GROUP(MEAS_ACC_SAMPLERATE_2)
@@ -81,7 +79,7 @@ DECLARE_GROUP(MEAS_MAGN_SAMPLERATE_8)
 DECLARE_GROUP(MEAS_TEMP_)
 DECLARE_GROUP(WHITEBOARD_METRICS_COMM_)
 
-extern const DescriptorItem_t s_possibleSbemItems[57];
+extern const DescriptorItem_t s_possibleSbemItems[48];
 
 enum SbemValueIds_e {
 COMMON_DESCRIPTOR = CommonValueIds_e::DESCRIPTOR,
@@ -89,15 +87,6 @@ COMMON_SOURCE = CommonValueIds_e::SOURCE,
 COMMON_TIMEISO8601 = CommonValueIds_e::TIMEISO8601,
     NET,
     TIME,
-    FYSSA_GYRO_FRONTX,
-    FYSSA_GYRO_FRONTY,
-    FYSSA_GYRO_FRONTZ,
-    FYSSA_GYRO_TOPX,
-    FYSSA_GYRO_TOPY,
-    FYSSA_GYRO_TOPZ,
-    FYSSA_IMU_X,
-    FYSSA_IMU_Y,
-    FYSSA_IMU_Z,
     MEAS_ACC_SAMPLERATE_ARRAYACC_X,
     MEAS_ACC_SAMPLERATE_ARRAYACC_Y,
     MEAS_ACC_SAMPLERATE_ARRAYACC_Z,
@@ -149,8 +138,6 @@ COMMON_TIMEISO8601 = CommonValueIds_e::TIMEISO8601,
 
 enum SbemGroupIds_e {
     BEFORE_GROUPS_ID = SbemValueIds_COUNT-1,
-    FYSSA_GYRO_,
-    FYSSA_IMU_,
     MEAS_ACC_SAMPLERATE_ARRAYACC_,
     MEAS_ACC_SAMPLERATE_1,
     MEAS_ACC_SAMPLERATE_2,
@@ -229,11 +216,7 @@ enum SbemGroupIds_e {
     WHITEBOARD_METRICS_COMM_,
 };
 
-extern const DescriptorGroup_t s_possibleSbemGroups[78];
-
-size_t writeToSbemBuffer_FYSSA_GYRO(void *buffer, size_t bufferLen, size_t startOffset, const WB_RES::LOCAL::FYSSA_GYRO::EVENT::NotificationType &data);
-
-size_t writeToSbemBuffer_FYSSA_IMU(void *buffer, size_t bufferLen, size_t startOffset, const WB_RES::LOCAL::FYSSA_IMU::EVENT::NotificationType &data);
+extern const DescriptorGroup_t s_possibleSbemGroups[76];
 
 size_t writeToSbemBuffer_MEAS_ACC_SAMPLERATE(void *buffer, size_t bufferLen, size_t startOffset, const WB_RES::LOCAL::MEAS_ACC_SAMPLERATE::EVENT::NotificationType &data);
 
@@ -256,10 +239,6 @@ size_t writeToSbemBuffer_MEAS_TEMP(void *buffer, size_t bufferLen, size_t startO
 size_t writeToSbemBuffer_TIME(void *buffer, size_t bufferLen, size_t startOffset, const WB_RES::LOCAL::TIME::EVENT::NotificationType &data);
 
 size_t writeToSbemBuffer_WHITEBOARD_METRICS_COMM(void *buffer, size_t bufferLen, size_t startOffset, const WB_RES::LOCAL::WHITEBOARD_METRICS_COMM::EVENT::NotificationType &data);
-
-size_t getSbemLength_FYSSA_GYRO(const WB_RES::LOCAL::FYSSA_GYRO::EVENT::NotificationType &data);
-
-size_t getSbemLength_FYSSA_IMU(const WB_RES::LOCAL::FYSSA_IMU::EVENT::NotificationType &data);
 
 size_t getSbemLength_MEAS_ACC_SAMPLERATE(const WB_RES::LOCAL::MEAS_ACC_SAMPLERATE::EVENT::NotificationType &data);
 
@@ -284,4 +263,4 @@ size_t getSbemLength_TIME(const WB_RES::LOCAL::TIME::EVENT::NotificationType &da
 size_t getSbemLength_WHITEBOARD_METRICS_COMM(const WB_RES::LOCAL::WHITEBOARD_METRICS_COMM::EVENT::NotificationType &data);
 
 extern const SbemResID2ItemIdMapping s_sbemResID2ItemIdMap[1];
-extern const SbemResID2GrpIdMapping s_sbemResID2GrpIdMap[68];
+extern const SbemResID2GrpIdMapping s_sbemResID2GrpIdMap[66];
