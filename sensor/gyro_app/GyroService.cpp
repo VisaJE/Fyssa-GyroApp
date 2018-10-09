@@ -31,6 +31,7 @@ const char* const GyroService::LAUNCHABLE_NAME = "GyroService";
 
 #define DEGREES_PER_PI 57.2957795130
 
+using namespace gyrospinner;
 
 const char* GYRO_PATH = "/meas/gyro/";
 const char* ACC_PATH = "/meas/acc/";
@@ -407,7 +408,7 @@ void GyroService::onGyroData(whiteboard::ResourceId resourceId, const whiteboard
         axis.i = (gyroValue.mX - zeroAngularX)/(sampleRate*DEGREES_PER_PI);
         axis.j = (gyroValue.mY - zeroAngularY)/(sampleRate*DEGREES_PER_PI);
         axis.k = (gyroValue.mZ - zeroAngularZ)/(sampleRate*DEGREES_PER_PI);
-        float angle = gyrospinner::QuickMafs::normalize(&axis);
+        float angle = QuickMafs::normalize(&axis);
         if (angle*angle > minAngleSquared) {
             isTurning = true;
             totalRotation = gyrospinner::QuickMafs::product(gyrospinner::QuickMafs::constructRotator(axis, -angle), totalRotation); 
@@ -418,10 +419,10 @@ void GyroService::onGyroData(whiteboard::ResourceId resourceId, const whiteboard
             if (upCounter >= (int)sampleRate/4) 
             {
                 //DEBUGLOG("D/SENSOR/OnNotify():angle x 1000: %u", (uint32_t)(angle*1000));
-                gyrospinner::Vector headingX = gyrospinner::QuickMafs::rotate(startHeadingX, totalRotation);
-                gyrospinner::Vector headingZ = gyrospinner::QuickMafs::rotate(startHeadingZ, totalRotation);
-                gyrospinner::QuickMafs::normalize(&headingX);
-                gyrospinner::QuickMafs::normalize(&headingZ);
+                gyrospinner::Vector headingX = QuickMafs::rotate(startHeadingX, totalRotation);
+                gyrospinner::Vector headingZ = QuickMafs::rotate(startHeadingZ, totalRotation);
+                QuickMafs::normalize(&headingX);
+                QuickMafs::normalize(&headingZ);
                 upCounter = 0;
                 WB_RES::HeadingValue res;
                 res.frontx = headingX.i;
@@ -467,15 +468,15 @@ void GyroService::onAccData(whiteboard::ResourceId resourceId, const whiteboard:
         gyrospinner::Vector acc = {accValue.mX, accValue.mY, accValue.mZ};
         if (isTurning || !filterWithGyro)
         {
-            gyrospinner::Vector headingX = gyrospinner::QuickMafs::rotate(startHeadingX, totalRotation);
-            gyrospinner::Vector headingZ = gyrospinner::QuickMafs::rotate(startHeadingZ, totalRotation);
-            gyrospinner::Vector yVec = crossProduct(headingZ, headingX);
+            gyrospinner::Vector headingX = QuickMafs::rotate(startHeadingX, totalRotation);
+            gyrospinner::Vector headingZ = QuickMafs::rotate(startHeadingZ, totalRotation);
+            gyrospinner::Vector yVec = QuickMafs::crossProduct(headingZ, headingX);
 
-            float zS = dotProduct(acc, headingZ) - g;
+            float zS = QuickMafs::dotProduct(acc, headingZ) - g;
             zSpeed += (zS*zS > minAccSquared) ? zS / accSampleRate : 0.0;
-            float xS = dotProduct(acc, headingX);
+            float xS = QuickMafs::dotProduct(acc, headingX);
             xSpeed += xS*xS > minAccSquared ? xS / accSampleRate : 0.0;
-            float yS = dotProduct(acc, yVec);
+            float yS = QuickMafs::dotProduct(acc, yVec);
             ySpeed += yS*yS > minAccSquared ? yS / accSampleRate : 0.0;
         } else if (filterWithGyro)
         {
@@ -532,7 +533,7 @@ void GyroService::onTimer(whiteboard::TimerId timerId)
         float x = startHeadingZ.i;
         float y = startHeadingZ.j;
         float z = startHeadingZ.k;
-        gyrospinner::QuickMafs::normalize(&startHeadingZ);
+        QuickMafs::normalize(&startHeadingZ);
         isCalibrating = false;
         orientate = false;
         g = sqrt(x*x + y*y + z*z);
@@ -542,14 +543,14 @@ void GyroService::onTimer(whiteboard::TimerId timerId)
             startHeadingX.j = 1.0;
             startHeadingX.k = 0.0;
             startHeadingX.i = -y*startHeadingX.j/x;
-            gyrospinner::QuickMafs::normalize(&startHeadingX);
+            QuickMafs::normalize(&startHeadingX);
 
         } else
         {
             startHeadingX.i = 0.0;
             startHeadingX.k = 1.0;
             startHeadingX.j = -z*startHeadingX.k/y;
-            gyrospinner::QuickMafs::normalize(&startHeadingX);
+            QuickMafs::normalize(&startHeadingX);
         }
         DEBUGLOG("D/SENSOR/ Imu calibrated with acc data %u, %u, %u. Gravity g: %u", (uint32_t)abs((int)(x*100)), (uint32_t)abs((int)(y*100)),
             (uint32_t)abs((int)(z*100)), (uint32_t)abs((int)(g*100)));
@@ -589,13 +590,4 @@ void GyroService::onClientUnavailable(whiteboard::ClientId clientId)
     stopRunning();
 }
 
-gyrospinner::Vector GyroService::crossProduct(gyrospinner::Vector a, gyrospinner::Vector b)
-{
-return {a.j*b.k-a.k*b.j, a.k*b.i - b.k * a.i, a.i*b.j - a.j*b.i};
-}
-
-float GyroService::dotProduct(gyrospinner::Vector a, gyrospinner::Vector b)
-{
-return a.i *b.i + a.j*b.j + a.k*b.k;
-}
 

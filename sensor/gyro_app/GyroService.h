@@ -151,9 +151,6 @@ private:
     gyrospinner::Vector startHeadingZ = {0.0, 0.0, 1.0};
 
 
-    gyrospinner::Vector crossProduct(gyrospinner::Vector a, gyrospinner::Vector b);
-    float dotProduct(gyrospinner::Vector a, gyrospinner::Vector b);
-
     gyrospinner::Quaternion totalRotation = {1.0, {0.0, 0.0, 0.0}};
     
     bool orientate = false;

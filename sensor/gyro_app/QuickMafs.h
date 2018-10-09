@@ -33,9 +33,13 @@ public:
 	static Quaternion product(Quaternion a, Quaternion b);
 	static Quaternion sum(Quaternion a, Quaternion b);
 	static Quaternion constructRotator(Vector rotationAxis, float angle);
+	static float dotProduct(Vector a, Vector b);
+	static Vector crossProduct(Vector a, Vector b);
+	static Vector sum(Vector a, Vector b);
 	static Vector rotate(Vector turnable, Quaternion rotator);
 	static Vector rotate(Vector turnable, Vector rotationAxis, float angle);
-
+	static void rotationBetween(float& angle, Vector& rotationAxis, Vector& start, Vector& end); //Normalizes start and end vectors.
+	static Quaternion rotatorBetween(Vector start, Vector end);
 };
 
 } /* namespace gyrospinner */

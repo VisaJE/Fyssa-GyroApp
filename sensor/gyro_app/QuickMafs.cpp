@@ -58,6 +58,16 @@ Quaternion QuickMafs::sum(Quaternion a, Quaternion b) {
 	return res;
 }
 
+float QuickMafs::dotProduct(Vector a, Vector b) {
+	return a.i*b.i + a.j*b.j + a.k*b.k;
+}
+Vector QuickMafs::sum(Vector a, Vector b) {
+	return {a.i+b.i, a.j+b.j, a.k+b.k};
+}
+Vector QuickMafs::crossProduct(Vector a, Vector b) {
+	return {a.j*b.k-a.k*b.j, a.k*b.i - b.k * a.i, a.i*b.j - a.j*b.i};
+}
+
 Quaternion QuickMafs::constructRotator(Vector rotationAxis, float angle) {
 	Quaternion rotator;
 	rotator.r = cos(angle/2);
@@ -72,6 +82,20 @@ Vector QuickMafs::rotate(Vector turnable, Quaternion rotator) {
 Vector QuickMafs::rotate(Vector turnable, Vector rotationAxis, float angle) {
 	Quaternion rotator = constructRotator(rotationAxis, angle);
 	return rotate(turnable, rotator);
+}
+
+void QuickMafs::rotationBetween(float& angle, Vector& rotationAxis, Vector& start, Vector& end) {
+	normalize(&start);
+	normalize(&end);
+	angle = acos(dotProduct(start, end));
+	rotationAxis = crossProduct(start, end);
+	normalize(&rotationAxis);
+}
+Quaternion QuickMafs::rotatorBetween(Vector start, Vector end) {
+	float angle;
+	Vector rotationAxis;
+	rotationBetween(angle, rotationAxis,  start, end);
+	return constructRotator(rotationAxis, angle);
 }
 
 } /* namespace gyrospinner */

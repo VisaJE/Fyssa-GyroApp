@@ -75,6 +75,13 @@ public class SelectTestActivity extends AppCompatActivity {
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
         });
 
+
+
+        addSubs();
+        //startActivity(new Intent(SelectTestActivity.this, ClassDataManagerActivity.class));
+    }
+
+    private void addSubs() {
         subscriptions.add(MdsRx.Instance.connectedDeviceObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<MdsConnectedDevice>() {
@@ -84,6 +91,7 @@ public class SelectTestActivity extends AppCompatActivity {
                         if (mdsConnectedDevice.getConnection() == null) {
                             Log.e(TAG, "call: Rx Disconnect");
                             if (closeApp) {
+
                                 if (Build.VERSION.SDK_INT >= 21) {
                                     finishAndRemoveTask();
                                 } else {
@@ -101,14 +109,13 @@ public class SelectTestActivity extends AppCompatActivity {
                         }
                     }
                 }, new ThrowableToastingAction(this)));
-
-
-        //startActivity(new Intent(SelectTestActivity.this, ClassDataManagerActivity.class));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        addSubs();
+        Log.d(TAG, "Resuming." );
     }
 
     @Override
@@ -137,6 +144,11 @@ public class SelectTestActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         alertDialog.show();
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        subscriptions.clear();
     }
 
     @Override
