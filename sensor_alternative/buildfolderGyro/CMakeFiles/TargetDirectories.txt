@@ -1,9 +1,0 @@
-C:/Users/Eemil/Documents/Ohjelmointi/ANDROIDGYRO/sensor_alternative/buildfolderGyro/CMakeFiles/Movesense.dir
-C:/Users/Eemil/Documents/Ohjelmointi/ANDROIDGYRO/sensor_alternative/buildfolderGyro/CMakeFiles/dfupkg.dir
-C:/Users/Eemil/Documents/Ohjelmointi/ANDROIDGYRO/sensor_alternative/buildfolderGyro/CMakeFiles/backup_manufacturing_data.dir
-C:/Users/Eemil/Documents/Ohjelmointi/ANDROIDGYRO/sensor_alternative/buildfolderGyro/CMakeFiles/create_combined_hex.dir
-C:/Users/Eemil/Documents/Ohjelmointi/ANDROIDGYRO/sensor_alternative/buildfolderGyro/CMakeFiles/create_hex.dir
-C:/Users/Eemil/Documents/Ohjelmointi/ANDROIDGYRO/sensor_alternative/buildfolderGyro/CMakeFiles/flash.dir
-C:/Users/Eemil/Documents/Ohjelmointi/ANDROIDGYRO/sensor_alternative/buildfolderGyro/CMakeFiles/flash_all.dir
-C:/Users/Eemil/Documents/Ohjelmointi/ANDROIDGYRO/sensor_alternative/buildfolderGyro/CMakeFiles/edit_cache.dir
-C:/Users/Eemil/Documents/Ohjelmointi/ANDROIDGYRO/sensor_alternative/buildfolderGyro/CMakeFiles/rebuild_cache.dir

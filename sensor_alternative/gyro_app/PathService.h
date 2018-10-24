@@ -136,7 +136,7 @@ private:
     
     bool isCalibrating = false;
     bool isTurning = false;
-    bool isFiltered = true;
+    bool isFiltering = true;
     bool memoryBit;
     float zeroAngularX = 0;
     float zeroAngularY = 0;
@@ -150,9 +150,10 @@ private:
 
 
     gyrospinner::Vector startHeadingX = {1.0, 0.0, 0.0}; 
-    gyrospinner::Vector startHeadingZ = {0.0, 0.0, 1.0};
+    gyrospinner::Vector startHeadingZ = {0.0, 0.0, 1.0}; // Points away from g vector.
 
-
+    gyrospinner::Vector newGravityVector = {0.0, 0.0, 10.0};
+    int newGravitySize = 0; //For storing a new gravity vector when the sensor in stationary.
     gyrospinner::Quaternion totalRotation = {1.0, {0.0, 0.0, 0.0}};
     
     bool orientate = false;
