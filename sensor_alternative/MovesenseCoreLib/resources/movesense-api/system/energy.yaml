@@ -1,0 +1,73 @@
+swagger: '2.0'
+
+info:
+  version: NA
+  title: Energy - Movesense-API
+  description: |
+    This file defines the energy API.
+  x-api-type: public
+  x-api-required: true
+
+paths:
+
+  /System/Energy/Level:
+    get:
+      description: |
+        Get estimated battery charge level.
+      responses:
+        200:
+          description: Battery charge percent
+          schema:
+            type: integer
+            format: uint8
+            x-unit: percent
+
+  /System/Energy/Level/Subscription:
+    post:
+      description: |
+        Subscribe to energy charge level change notifications.
+      responses:
+        200:
+          description: Operation completed successfully
+        x-notification:
+          description: New value
+          schema:
+            type: integer
+            format: uint8
+            x-unit: percent
+    delete:
+      description: |
+        Unsubscribe from energy level change notifications.
+      responses:
+        200:
+          description: Operation completed successfully
+
+  /System/Energy:
+    get:
+      description: Get energy level.
+      responses:
+        200:
+          description: Get information about energy.
+          schema:
+            $ref: '#/definitions/Energy'
+
+definitions:
+
+  Energy:
+    required:
+      - Percent
+    properties:
+      Percent:
+        description: Available charge level in percent 0...100%
+        type: integer
+        format: uint8
+        x-unit: percent
+      MilliVoltages:
+        description: Battery charge level in millivolts.
+        type: integer
+        format: uint16
+        x-unit: mV
+      InternalResistance:
+        description: Battery internal resistance in ohms.
+        type: integer
+        format: uint8
