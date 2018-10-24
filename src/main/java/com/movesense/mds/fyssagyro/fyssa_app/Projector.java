@@ -12,7 +12,7 @@ import static java.lang.Math.sqrt;
 
 public class Projector {
     private LinkedList<Vector3d<Float>> trajectory;
-    private int points = 25;
+    private int points = 30;
 
     protected Projector(LinkedList<Vector3d<Float>> trajectory) {
         this.trajectory = trajectory;

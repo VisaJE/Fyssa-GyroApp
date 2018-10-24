@@ -52,6 +52,7 @@
             android:layout_width="177dp"
             android:layout_height="64dp"
             android:layout_marginEnd="8dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_weight="1"
             android:text="@string/get_current_calue"
@@ -59,6 +60,7 @@
             android:textColor="@color/colorText"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/subscription_switch"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </android.support.constraint.ConstraintLayout>
 
@@ -81,24 +83,14 @@
         <EditText
             android:id="@+id/acc_treshold_tv"
             android:layout_width="155dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="16dp"
+            android:layout_height="51dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
             android:ems="10"
             android:hint="@string/min_acc"
             android:inputType="numberDecimal"
-            app:layout_constraintBottom_toTopOf="@+id/filter_switch"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <Button
-            android:id="@+id/get_info_button"
-            android:layout_width="126dp"
-            android:layout_height="41dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="16dp"
-            android:text="@string/get_info"
-            app:layout_constraintBottom_toTopOf="@+id/apply_config_button"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sample_rate_tv" />
 
         <TextView
             android:id="@+id/position_tv"
@@ -116,62 +108,72 @@
         <EditText
             android:id="@+id/sample_rate_tv"
             android:layout_width="155dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="16dp"
+            android:layout_height="40dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
             android:ems="10"
             android:hint="@string/sample_rate_input"
             android:inputType="number"
             android:singleLine="false"
-            app:layout_constraintBottom_toTopOf="@+id/acc_treshold_tv"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/plot_button" />
 
 
         <Button
             android:id="@+id/apply_config_button"
-            android:layout_width="126dp"
-            android:layout_height="41dp"
-            android:layout_marginBottom="16dp"
-            android:layout_marginStart="16dp"
+            android:layout_width="160dp"
+            android:layout_height="42dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
             android:text="@string/set_config"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/filter_switch" />
 
         <Switch
             android:id="@+id/filter_switch"
             android:layout_width="155dp"
-            android:layout_height="27dp"
-            android:layout_marginBottom="16dp"
+            android:layout_height="42dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
             android:text="@string/filter_switch"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/acc_treshold_tv" />
 
         <Button
             android:id="@+id/plot_button"
             android:layout_width="155dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:text="@string/plot_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/path_button"
+            android:layout_width="155dp"
+            android:layout_height="81dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/path_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/position_tv" />
 
     </android.support.constraint.ConstraintLayout>
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="27dp" />
+        android:layout_height="14dp" />
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="50dp">
 
         <Button
             android:id="@+id/start_service_button"
             style="@android:style/Widget.Button"
-            android:layout_width="170dp"
-            android:layout_height="45dp"
+            android:layout_width="61dp"
+            android:layout_height="37dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
@@ -181,7 +183,7 @@
             android:textColor="@color/colorText"
             android:visibility="visible"
             app:layout_constraintEnd_toStartOf="@+id/stop_service_button"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textView2"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -193,17 +195,27 @@
         <Button
             android:id="@+id/stop_service_button"
             style="@android:style/Widget.Button"
-            android:layout_width="170dp"
-            android:layout_height="45dp"
-            android:layout_marginEnd="8dp"
+            android:layout_width="50dp"
+            android:layout_height="37dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:fontFamily="sans-serif"
             android:text="@string/stop_service"
             android:textColor="@color/colorText"
             android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/start_service_button"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/get_info_button"
+            android:layout_width="135dp"
+            android:layout_height="37dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/get_info"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small.Inverse"
+            android:textColor="@color/ap_gray"
+            app:layout_constraintStart_toEndOf="@+id/stop_service_button"
             app:layout_constraintTop_toTopOf="parent" />
     </android.support.constraint.ConstraintLayout>
 

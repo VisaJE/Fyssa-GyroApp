@@ -476,27 +476,27 @@ void PathService::onAccData(whiteboard::ResourceId resourceId, const whiteboard:
                 if (imuSubscription) {
 
                     DEBUGLOG("D/SENSOR/onAccData updating position resource.");
-		    float angle;
-	    	    gyrospinner::Vector rotationAxis;	    
-		    rotationBetween(&angle, &rotationAxis, &startHeadingZ, &newGravityVector); //Normalizes start and end vectors.
-                    WB_RES::PositionValue* r = malloc(speedArray.size()*sizeof(WB_RES::PositionValue));
-		    float timeDelta = 1/accSampleRate;
-		    r[0].i = r[0].i*timeDelta;
-		    r[0].j = r[0].j*timeDelta;
-		    r[0].k = r[0].k*timeDelta;
-		    for (int i = 1; i < speedArray.size(); i++)
-		    {
-		    	r[i].i = r[i-1].i + r[i].i*timeDelta;
-		    	r[i].j = r[i-1].j + r[i].j*timeDelta;
-		    	r[i].k = r[i-1].k + r[i].k*timeDelta;
-		    }
-                    whiteboard::Array<WB_RES::PositionValue> res = whiteboard::MakeArray(&r, speedArray.size());
-                    WB_RES::PositionData output;
-                    output.posArray = res;
-                    
-                    updateResource(WB_RES::LOCAL::FYSSA_PATH(),
-                                ResponseOptions::Empty, output);
-		    free(r);
+                float angle;
+                gyrospinner::Vector rotationAxis;	    
+                rotationBetween(&angle, &rotationAxis, &startHeadingZ, &newGravityVector); //Normalizes start and end vectors.
+                WB_RES::PositionValue* r = malloc(speedArray.size()*sizeof(WB_RES::PositionValue));
+                float timeDelta = 1/accSampleRate;
+                r[0].i = r[0].i*timeDelta;
+                r[0].j = r[0].j*timeDelta;
+                r[0].k = r[0].k*timeDelta;
+                for (int i = 1; i < speedArray.size(); i++)
+                {
+                  r[i].i = r[i-1].i + r[i].i*timeDelta;
+                  r[i].j = r[i-1].j + r[i].j*timeDelta;
+                  r[i].k = r[i-1].k + r[i].k*timeDelta;
+                }
+                            whiteboard::Array<WB_RES::PositionValue> res = whiteboard::MakeArray(&r, speedArray.size());
+                            WB_RES::PositionData output;
+                            output.posArray = res;
+                            
+                            updateResource(WB_RES::LOCAL::FYSSA_PATH(),
+                                        ResponseOptions::Empty, output);
+                free(r);
                 }
                 speedArray.erase(speedArray.begin(), speedArray.end());
                 isFiltering = false;
@@ -521,11 +521,11 @@ void PathService::onAccData(whiteboard::ResourceId resourceId, const whiteboard:
             zSpeed = 0.0;
             xSpeed = 0.0;
             ySpeed = 0.0;
-	    newGravityVector.i = (newGravityVector.i*newGravitySize + acc.i)/(newGravitySize + 1);
-	    newGravityVector.j = (newGravityVector.j*newGravitySize + acc.j)/(newGravitySize + 1);
-	    newGravityVector.k = (newGravityVector.k*newGravitySize + acc.k)/(newGravitySize + 1);
-	    ++newGravitySize;
-	    isFiltering = true;
+            newGravityVector.i = (newGravityVector.i*newGravitySize + acc.i)/(newGravitySize + 1);
+            newGravityVector.j = (newGravityVector.j*newGravitySize + acc.j)/(newGravitySize + 1);
+            newGravityVector.k = (newGravityVector.k*newGravitySize + acc.k)/(newGravitySize + 1);
+            ++newGravitySize;
+            isFiltering = true;
         }
 
 

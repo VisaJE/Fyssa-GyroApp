@@ -43,7 +43,7 @@ import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import rx.subscriptions.CompositeSubscription;
 
-
+import static java.lang.Thread.sleep;
 
 
 public class FyssaImuMainActivity extends AppCompatActivity {
@@ -172,7 +172,7 @@ public class FyssaImuMainActivity extends AppCompatActivity {
         checkSensorSoftware();
     }
 
-    @OnClick({R.id.get_info_button, R.id.start_service_button, R.id.stop_service_button, R.id.subscription_switch, R.id.get_heading_button, R.id.apply_config_button, R.id.plot_button})
+    @OnClick({R.id.get_info_button, R.id.start_service_button, R.id.stop_service_button, R.id.subscription_switch, R.id.get_heading_button, R.id.apply_config_button, R.id.plot_button, R.id.path_button})
     public void onViewClicked(View view) {
         switch(view.getId()) {
             case R.id.get_info_button:
@@ -205,6 +205,10 @@ public class FyssaImuMainActivity extends AppCompatActivity {
                 if (app.plottable.size() > 0) startActivity(new Intent(FyssaImuMainActivity.this, SimpleXYPlotActivity.class)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                 else toast("No plottable data.");
+                break;
+            case  R.id.path_button:
+                getPath();
+                break;
         }
     }
     @OnCheckedChanged({R.id.subscription_switch})
@@ -213,6 +217,36 @@ public class FyssaImuMainActivity extends AppCompatActivity {
             subscribePosition();
         }
         else unSubscribeImu();
+    }
+
+    private void getPath() {
+        if (subSwitch.isChecked()) subSwitch.toggle();
+        subSwitch.setEnabled(false);
+        app.trajectory.clear();
+        mImuSubscription = Mds.builder().build(this).subscribe(URI_EVENTLISTENER, "{\"Uri\": \"" +
+                        MovesenseConnectedDevices.getConnectedDevice(0).getSerial() + IMU_PATH_GET + "\"}",
+                new MdsNotificationListener() {
+                    @Override
+                    public void onNotification(String s){
+                        Log.d(TAG, "A datapoint" + app.trajectory.size());
+                        try {
+                            FyssaPositionData data = new Gson().fromJson(s, FyssaPositionData.class);
+                            posView.setText("Getting path:\n" + app.trajectory.size() + " / 30.");
+                            if (app.trajectory.size() < 30) app.trajectory.add(new Vector3d(data.getContent().getX(), data.getContent().getY(), data.getContent().getZ()) );
+                            else {
+                                mImuSubscription.unsubscribe();
+                                plotButton.callOnClick();
+                            }
+                        } catch (Exception e){ Log.e(TAG, "Wrong value!", e);}
+
+                    }
+                    @Override
+                    public void onError(MdsException e) {
+                        Log.e(TAG, "Error on subscribing:", e);
+                    }
+                });
+
+
     }
 
     private void getHeading() {

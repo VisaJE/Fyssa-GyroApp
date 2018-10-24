@@ -66,9 +66,6 @@ public class SimpleXYPlotActivity extends Activity {
         series1Format.setInterpolationParams(
                 new CatmullRomInterpolator.Params(10, CatmullRomInterpolator.Type.Centripetal));
 
-        series2Format.setInterpolationParams(
-                new CatmullRomInterpolator.Params(10, CatmullRomInterpolator.Type.Centripetal));
-
         // add a new series' to the xyplot:
         plot.addSeries(series1, series1Format);
 /*

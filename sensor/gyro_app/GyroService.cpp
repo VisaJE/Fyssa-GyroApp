@@ -17,6 +17,7 @@
 // Time between wake-up and going to power-off mode
 #define AVAILABILITY_TIME 180000
 
+#define UPDATES_PER_SECOND 6
 
 // Time between turn on AFE wake circuit to power off
 // (must be LED_BLINKING_PERIOD multiple)
@@ -55,7 +56,7 @@ GyroService::GyroService()
       sampleRate(208),
       minAngleSquared(0.001*0.001),
       accSampleRate(208),
-      minAccSquared(0.001)
+      minAccSquared(0.5)
 {
 
     mTimer = whiteboard::ID_INVALID_TIMER;
@@ -488,7 +489,7 @@ void GyroService::onAccData(whiteboard::ResourceId resourceId, const whiteboard:
         position[1] += ySpeed/accSampleRate;
         position[2] += zSpeed/accSampleRate;
         if (imuSubscription) {
-            if (upCounter >= accSampleRate/4) {
+            if (upCounter >= accSampleRate/UPDATES_PER_SECOND) {
                 DEBUGLOG("D/SENSOR/onAccData updating position resource. Current speed %u %u %u", (uint32_t)abs((int) xSpeed), (uint32_t)abs((int) ySpeed), (uint32_t)abs((int) zSpeed));
                 upCounter = 0;
                 WB_RES::PositionValue res;
