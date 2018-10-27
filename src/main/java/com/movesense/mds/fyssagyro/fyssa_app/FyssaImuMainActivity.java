@@ -238,11 +238,15 @@ public class FyssaImuMainActivity extends AppCompatActivity {
                                 plotButton.callOnClick();
                             }
                         } catch (Exception e){ Log.e(TAG, "Wrong value!", e);}
+                        finally {
+                            subSwitch.setEnabled(false);
+                        }
 
                     }
                     @Override
                     public void onError(MdsException e) {
                         Log.e(TAG, "Error on subscribing:", e);
+                        subSwitch.setEnabled(true);
                     }
                 });
 
