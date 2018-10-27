@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="Gradle: com.jjoe64:graphview-4.2.1">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/graphview-4.2.1.aar/c87343f2219910db6dbf040668eb602a/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/graphview-4.2.1.aar/c87343f2219910db6dbf040668eb602a/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/graphview-4.2.1.aar/cfd2e8c2f8f35a18dc59e9f44fc86ec7/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/graphview-4.2.1.aar/cfd2e8c2f8f35a18dc59e9f44fc86ec7/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

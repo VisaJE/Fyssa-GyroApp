@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ANDROIDGYRO.iml" filepath="$PROJECT_DIR$/ANDROIDGYRO.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Fyssa-GyroApp.iml" filepath="$PROJECT_DIR$/Fyssa-GyroApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/org.eclipse.paho.android.service/org.eclipse.paho.android.service.iml" filepath="$PROJECT_DIR$/org.eclipse.paho.android.service/org.eclipse.paho.android.service.iml" />
     </modules>
   </component>

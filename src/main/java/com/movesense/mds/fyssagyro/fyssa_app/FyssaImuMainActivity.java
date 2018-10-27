@@ -316,7 +316,7 @@ public class FyssaImuMainActivity extends AppCompatActivity {
         String configUri = MdsRx.SCHEME_PREFIX +
                 MovesenseConnectedDevices.getConnectedDevice(0).getSerial() + IMU_CONFIG;
 
-                // Create the config object
+                // Create the config object. That much simpler without Gsons.
         String jsonConfig = "{\"fyssaAccConfig\":{\"rate\":" + sampleRate + ",\"threshold\":" + minAngle + ",\"filter\":" + Boolean.toString(filter) + "}}";
 
         Log.d(TAG, "Config request: " + jsonConfig);
